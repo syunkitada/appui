@@ -19,6 +19,11 @@ export function Render(input: any) {
     const tbodyId = `${keyPrefix}tbody`;
     const searchInputId = `${keyPrefix}searchInput`;
 
+    if (!tableData) {
+        $(`#${id}`).html(`<div>NoData</div>`);
+        return;
+    }
+
     const tableDataLen = tableData.length;
 
     $(`#${id}`).html(`

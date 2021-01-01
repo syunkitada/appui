@@ -15,30 +15,6 @@ function init() {
         location = tmpLocationData;
         initLocation = true;
     }
-    provider.get_service_index({
-        serviceName,
-        projectName,
-        initLocation,
-        location,
-        onSuccess: function (input: any) {
-            if (!initLocation && input.Index.DefaultRoute.Path) {
-                location.Path = input.Index.DefaultRoute.Path;
-                locationData.setLocationData(location);
-            }
-            data.service = {
-                data: input.Data,
-                rootView: input.Index.View
-            };
-
-            Index.Render({
-                id: "root-content",
-                View: input.Index.View
-            });
-        },
-        onError: function (input: any) {
-            console.log("onError", input);
-        }
-    });
 
     Dashboard.Render({
         id: "root",
@@ -75,6 +51,31 @@ function init() {
                     console.log("onError", input);
                 }
             });
+        }
+    });
+
+    provider.get_service_index({
+        serviceName,
+        projectName,
+        initLocation,
+        location,
+        onSuccess: function (input: any) {
+            if (!initLocation && input.Index.DefaultRoute.Path) {
+                location.Path = input.Index.DefaultRoute.Path;
+                locationData.setLocationData(location);
+            }
+            data.service = {
+                data: input.Data,
+                rootView: input.Index.View
+            };
+
+            Index.Render({
+                id: "root-content",
+                View: input.Index.View
+            });
+        },
+        onError: function (input: any) {
+            console.log("onError", input);
         }
     });
 }

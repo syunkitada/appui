@@ -16,30 +16,29 @@ function renderServices(input: any) {
     }
     console.log("DEBUG projectName", projectName, tmpServiceMap);
 
-    const tmpProjects = Object.keys(ProjectServiceMap);
-    tmpProjects.sort();
-
+    const servicesHtmls = [];
     const tmpProjectMap: any = {};
-    for (const tmpProject of tmpProjects) {
-        tmpProjectMap[tmpProject] = null;
+    if (ProjectServiceMap) {
+        const tmpProjects = Object.keys(ProjectServiceMap);
+        tmpProjects.sort();
+
+        for (const tmpProject of tmpProjects) {
+            tmpProjectMap[tmpProject] = null;
+        }
+
+        const projectHtml = `
+        <li class="list-group-item list-group-item-action sidebar-item">
+          <div class="input-field col s12 autocomplete-wrapper">
+            <input type="text" id="${idPrefix}inputProject" class="autocomplete">
+            <label for="autocomplete-input">${projectText}</label>
+            <i class="material-icons">input</i>
+            <span class="hint">Select Project</span>
+          </div>
+        </li>
+        `;
+
+        servicesHtmls.push(projectHtml);
     }
-    tmpProjectMap["hoge"] = null;
-    tmpProjectMap["hoge2"] = null;
-
-    const projectHtml = `
-
-    <li class="list-group-item list-group-item-action sidebar-item">
-<div class="input-field col s12 autocomplete-wrapper">
-<input type="text" id="${idPrefix}inputProject" class="autocomplete">
-<label for="autocomplete-input">${projectText}</label>
-<i class="material-icons">input</i>
-<span class="hint">Select Project</span>
-</div>
-
-    </li>
-    `;
-
-    const servicesHtmls = [projectHtml];
 
     const tmpServices = Object.keys(tmpServiceMap);
     tmpServices.sort();

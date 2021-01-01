@@ -52,15 +52,14 @@ export function Render(input: any) {
         if (pane.Name !== indexPath) {
             continue;
         }
-        console.log("DEBUG Pane Render", indexPath, pane);
 
         $(`#${id}`).html(`
-<div class="pane">
-  <h1>${pane.Name} ${subName}</h1>
-  <div id="${prefixKey}content" class="pane-content">
-  </div>
-</div>
-         `);
+        <div class="pane">
+          <h1>${pane.Name} ${subName}</h1>
+          <div id="${prefixKey}content" class="pane-content">
+          </div>
+        </div>
+        `);
 
         Index.Render({
             id: `${prefixKey}content`,
