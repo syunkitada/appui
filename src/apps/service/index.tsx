@@ -110,6 +110,7 @@ function getQueries(input: any) {
         location.ViewParams = {};
     }
 
+    console.log("DEBUG getQueries", location);
     locationData.setLocationData(location);
     $("#root-content-progress").html('<div class="indeterminate"></div>');
 

@@ -1,6 +1,10 @@
 import data from "../../data";
 import locationData from "../../data/locationData";
 import service from "../../apps/service";
+import Icon from "../icon/Icon";
+import Dashboard from "../core/Dashboard";
+import Form from "../form/Form";
+import converter from "../../lib/converter";
 
 export function Render(input: any) {
     const { id, View } = input;
@@ -18,6 +22,11 @@ export function Render(input: any) {
     const theadId = `${keyPrefix}thead`;
     const tbodyId = `${keyPrefix}tbody`;
     const searchInputId = `${keyPrefix}searchInput`;
+    const actionButtonClass = `${keyPrefix}actionButton`;
+    const exButtonsId = `${keyPrefix}exButtonsId`;
+    const filterButtonClass = `${keyPrefix}filterButton`;
+    const tooltipClass = `${keyPrefix}tooltip`;
+    const filterMap: any = {};
 
     if (!tableData) {
         $(`#${id}`).html(`<div>NoData</div>`);
@@ -40,31 +49,22 @@ export function Render(input: any) {
     </div>
     `);
 
-    let isSelectActions = true;
-    if (View.DisableToolbar) {
-        isSelectActions = false;
-    } else {
-        $(`#${toolBarId}`).html(`
-          <div class="col s3">
-            <div class="input-field">
-              <input id="${searchInputId}" placeholder="Search" type="text">
-            </div>
-          </div>
-          <div class="col s3">
-          </div>
-          <div id="${pagenationId}" class="col s6 pagenation-wrapper"></div>
-        `);
-    }
-
     const columns = View.Columns;
     const thHtmls: any = [];
-    if (isSelectActions) {
-        thHtmls.push(
-            `<th class="checkbox-wrapper"><label><input type="checkbox" /><span></span></label></th>`
-        );
-    }
 
     const searchColumns: any[] = [];
+    let searchRegExp: any = null;
+
+    const filterColumns: any[] = [];
+
+    const rowsPerPageOptions = [10, 20, 30];
+    let page = 1;
+    let rowsPerPage = 10;
+    let filteredTableData = tableData;
+    let fromIndex = 0;
+    let toIndex = rowsPerPage;
+    let tmpTableDataLen = 0;
+
     for (let i = 0, len = columns.length; i < len; i++) {
         const column = columns[i];
 
@@ -80,17 +80,104 @@ export function Render(input: any) {
             alignClass = "left-align";
         }
         thHtmls.push(`<th class="${alignClass}">${column.Name}</th>`);
+
+        if (column.FilterValues) {
+            const counterMap: any = {};
+            for (let j = 0, lenj = column.FilterValues.length; j < lenj; j++) {
+                const filterValue = column.FilterValues[j];
+                counterMap[filterValue.Value] = 0;
+            }
+            let key: any;
+            if (column.Key) {
+                key = column.Key;
+            } else {
+                key = column.Name;
+            }
+            filterColumns.push({
+                counterMap,
+                key: column.Key,
+                values: column.FilterValues,
+                currentValue: null
+            });
+        }
+    }
+
+    let isSelectActions = true;
+    if (View.DisableToolbar) {
+        isSelectActions = false;
+    } else {
+        if (filterColumns) {
+            for (let i = 0; i < tableDataLen; i++) {
+                const rdata = tableData[i];
+                for (let j = 0, lenj = filterColumns.length; j < lenj; j++) {
+                    const filterColumn = filterColumns[j];
+                    for (
+                        let k = 0, lenk = filterColumn.values.length;
+                        k < lenk;
+                        k++
+                    ) {
+                        if (
+                            rdata[filterColumn.key] ===
+                            filterColumn.values[k].Value
+                        ) {
+                            filterColumns[j].counterMap[
+                                filterColumn.values[k].Value
+                            ] += 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        const buttons: any = [];
+        if (View.Actions) {
+            for (let i = 0, len = View.Actions.length; i < len; i++) {
+                const action = View.Actions[i];
+                buttons.push(`
+                  <a class="modal-trigger waves-effect waves-light btn-floating btn-small ${actionButtonClass}" data-action-idx="${i}" href="#root-modal">${Icon.Html(
+                    { kind: action.Icon }
+                )}</a>
+                `);
+            }
+        }
+
+        $(`#${toolBarId}`).html(`
+        <div class="col s2">
+          <div class="input-field">
+            <input id="${searchInputId}" placeholder="Search" type="text">
+          </div>
+        </div>
+        <div class="col s1"></div>
+        <div class="col s3">
+          <div class="input-field">
+            <div id="${exButtonsId}" class="left"></div>
+            <div class="right">${buttons.join("")}</div>
+          </div>
+        </div>
+        <div id="${pagenationId}" class="col s6 pagenation-wrapper"></div>
+        `);
+
+        $(`.${actionButtonClass}`).on("click", function () {
+            const dataActionIdx = $(this).attr("data-action-idx");
+            if (!dataActionIdx) {
+                return;
+            }
+            const action = View.Actions[parseInt(dataActionIdx)];
+            console.log("DEBUG actionButton", action);
+            Form.Render({
+                id: Dashboard.RootModal.GetContentId(),
+                View: action
+            });
+            Dashboard.RootModal.Open();
+        });
+    }
+
+    if (isSelectActions) {
+        thHtmls.unshift(
+            `<th class="checkbox-wrapper"><label><input type="checkbox" /><span></span></label></th>`
+        );
     }
     $(`#${theadId}`).html(thHtmls.join(""));
-
-    const rowsPerPageOptions = [10, 20, 30];
-    let page = 1;
-    let rowsPerPage = 10;
-    let searchRegExp: any = null;
-    let filteredTableData = tableData;
-    let fromIndex = 0;
-    let toIndex = rowsPerPage;
-    let tmpTableDataLen = 0;
 
     function filterTableData() {
         let tmpTableData: any = [];
@@ -112,7 +199,34 @@ export function Render(input: any) {
                 tmpTableData.push(rdata);
             }
         } else {
-            tmpTableData = tableData;
+            if (filterColumns) {
+                for (let i = 0; i < tableDataLen; i++) {
+                    const rdata = tableData[i];
+                    isSkip = false;
+                    for (
+                        let j = 0, lenj = filterColumns.length;
+                        j < lenj;
+                        j++
+                    ) {
+                        const column = filterColumns[j];
+                        if (!column.currentValue) {
+                            continue;
+                        }
+                        if (
+                            rdata[column.key].toString() !== column.currentValue
+                        ) {
+                            isSkip = true;
+                            break;
+                        }
+                    }
+                    if (isSkip) {
+                        continue;
+                    }
+                    tmpTableData.push(rdata);
+                }
+            } else {
+                tmpTableData = tableData;
+            }
         }
 
         fromIndex = rowsPerPage * (page - 1);
@@ -128,6 +242,57 @@ export function Render(input: any) {
             tmpFilteredTableData.push(rdata);
         }
         filteredTableData = tmpFilteredTableData;
+    }
+
+    function renderExButtons() {
+        const exButtons: any[] = [];
+        for (let i = 0, len = filterColumns.length; i < len; i++) {
+            const column = filterColumns[i];
+            for (let j = 0, lenj = column.values.length; j < lenj; j++) {
+                const value = column.values[j];
+                let checked = "";
+                if (
+                    column.currentValue &&
+                    column.currentValue === value.Value.toString()
+                ) {
+                    checked = "checked";
+                }
+
+                exButtons.push(`
+                <a class="${filterButtonClass} waves-effect waves-light btn btn-small" data-position="bottom" data-idx="${i}" data-val="${
+                    value.Value
+                }">${Icon.Html({
+                    kind: value.Icon
+                })} ${column.counterMap[value.Value]} ${checked}</span>
+                </a>
+                `);
+            }
+        }
+        $(`#${exButtonsId}`).html(`${exButtons.join("")}`);
+
+        $(`.${filterButtonClass}`)
+            .off("click")
+            .on("click", function () {
+                const columnIndex = $(this).attr("data-idx");
+                if (!columnIndex) {
+                    return;
+                }
+                const columnValue = $(this).attr("data-val");
+                if (!columnValue) {
+                    return;
+                }
+                if (
+                    filterColumns[parseInt(columnIndex)].currentValue ===
+                    columnValue
+                ) {
+                    filterColumns[parseInt(columnIndex)].currentValue = null;
+                } else {
+                    filterColumns[
+                        parseInt(columnIndex)
+                    ].currentValue = columnValue;
+                }
+                render();
+            });
     }
 
     function renderTbody() {
@@ -154,18 +319,80 @@ export function Render(input: any) {
                     alignClass = "left-align";
                 }
 
-                if (column.LinkPath) {
+                let columnData: any;
+                if (column.Key) {
+                    columnData = rdata[column.Key];
+                } else {
+                    columnData = rdata[column.Name];
+                }
+                if (column.FilterValues) {
+                    let filterButton: any = null;
+                    const currentValue = filterMap[column.Name];
+                    let isShowCells = true;
+                    if (currentValue !== undefined) {
+                        isShowCells = false;
+                    }
+                    for (
+                        let j = 0, lenj = column.FilterValues.length;
+                        j < lenj;
+                        j++
+                    ) {
+                        const filterValue = column.FilterValues[j];
+                        if (filterValue.Value === columnData) {
+                            if (
+                                currentValue !== undefined &&
+                                currentValue === filterValue.Value
+                            ) {
+                                isShowCells = true;
+                            }
+
+                            let tmpValue = columnData;
+                            if (column.Kind === "Hidden") {
+                                tmpValue = "";
+                            }
+                            filterButton = `
+                            <a class="btn">${Icon.Html({
+                                kind: filterValue.Icon
+                            })}</a>`;
+                        }
+                    }
+                    if (!isShowCells) {
+                        continue;
+                    }
                     tdHtmls.push(
-                        `<td class="link ${alignClass} ${linkClass}" id="${keyPrefix}${i}-${j}">
-                ${rdata[column.Name]}
-                </td>`
+                        `<td class="${alignClass}" id="${keyPrefix}${i}-${j}">${filterButton}</td>`
                     );
                 } else {
-                    tdHtmls.push(
-                        `<td class="${alignClass}" id="${keyPrefix}${i}-${j}">${
-                            rdata[column.Name]
-                        }</td>`
-                    );
+                    switch (column.Kind) {
+                        case "Time":
+                            const time: any = new Date(columnData);
+                            if (!isNaN(time.getTime())) {
+                                columnData = time.toISOString();
+                            } else {
+                                columnData = time.toString();
+                            }
+                            break;
+                        case "Hidden":
+                            console.log("TODO");
+                            break;
+                        case "HideText":
+                            columnData = `
+                            <a class="${tooltipClass} btn tooltipped" data-position="bottom" data-tooltip="${columnData}">${Icon.Html(
+                                { kind: "Info" }
+                            )}</a>
+                            `;
+                            break;
+                    }
+                    if (column.LinkPath) {
+                        tdHtmls.push(`
+                        <td class="link ${alignClass} ${linkClass}" id="${keyPrefix}${i}-${j}">
+                          ${columnData}
+                        </td>`);
+                    } else {
+                        tdHtmls.push(
+                            `<td class="${alignClass}" id="${keyPrefix}${i}-${j}">${columnData}</td>`
+                        );
+                    }
                 }
             }
 
@@ -184,7 +411,11 @@ export function Render(input: any) {
                     const column = columns[splitedId[splitedId.length - 1]];
                     const rdata = tableData[splitedId[splitedId.length - 2]];
                     const params = Object.assign({}, location.Params);
-                    params[column.LinkKey] = rdata[column.Name];
+                    if (rdata[column.LinkKey]) {
+                        params[column.LinkKey] = rdata[column.LinkKey];
+                    } else {
+                        params[column.LinkKey] = rdata[column.Name];
+                    }
                     const newLocation = {
                         Path: column.LinkPath,
                         Params: params,
@@ -299,6 +530,7 @@ export function Render(input: any) {
             filterTableData();
         }
         renderTbody();
+        renderExButtons();
         renderPagenation();
     }
     render();
@@ -311,6 +543,8 @@ export function Render(input: any) {
             render();
         }
     });
+
+    $(`.${tooltipClass}`).tooltip();
 }
 
 const index = {

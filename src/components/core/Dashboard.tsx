@@ -118,29 +118,33 @@ function Render(input: any) {
     <!-- /#sidebar-wrapper -->
 
     <div class="bg-white" id="content-wrapper">
-    <!-- Page Content -->
-    <div id="page-content-wrapper">
-      <div id="root-content-progress" class="progress">
-        <div class="determinate" style="width: 0%"></div>
+      <!-- Page Content -->
+      <div id="page-content-wrapper">
+        <div id="root-content-progress" class="progress">
+          <div class="determinate" style="width: 0%"></div>
+        </div>
+
+        <div class="container-fluid">
+          <div id="root-content"></div>
+        </div>
+
+      <!-- Modal Structure -->
+      <div id="root-modal" class="modal">
+        <div id="root-modal-content" class="modal-content">
+        </div>
+        <div class="modal-footer">
+          <a href="#!" class="modal-close waves-effect waves-green btn-flat left">Cancel</a>
+          <a href="#!" class="waves-effect waves-light btn right">Submit</a>
+        </div>
       </div>
 
-      <div class="container-fluid">
-        <div id="root-content"></div>
       </div>
+      <!-- /#page-content-wrapper -->
+
     </div>
-    <!-- /#page-content-wrapper -->
-
-  </div>
-
-
   `);
 
-    //      <div class="progress">
-    //            <div class="indeterminate"></div>
-    //      </div>
-    // <div class="progress">
-    //       <div class="determinate" style="width: 70%"></div>
-    //         </div>
+    $("#root-modal").modal();
 
     renderServices(
         Object.assign({}, input, {
@@ -170,7 +174,18 @@ function Render(input: any) {
     return;
 }
 
+const RootModal = {
+    id: "root-modal",
+    GetContentId: function () {
+        return "root-modal-content";
+    },
+    Open: function () {
+        $("#root-modal").modal("open");
+    }
+};
+
 const index = {
-    Render
+    Render,
+    RootModal
 };
 export default index;
