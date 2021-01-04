@@ -27,6 +27,10 @@ class Provider {
     get_queries(input: any): void {
         return this.provider.get_queries(input);
     }
+
+    submit_queries(input: any): void {
+        return this.provider.submit_queries(input);
+    }
 }
 
 const provider = new Provider();

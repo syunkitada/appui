@@ -2,7 +2,6 @@ import data from "../../data";
 import locationData from "../../data/locationData";
 import service from "../../apps/service";
 import Icon from "../icon/Icon";
-import Dashboard from "../core/Dashboard";
 import Form from "../form/Form";
 import converter from "../../lib/converter";
 
@@ -163,12 +162,10 @@ export function Render(input: any) {
                 return;
             }
             const action = View.Actions[parseInt(dataActionIdx)];
-            console.log("DEBUG actionButton", action);
             Form.Render({
-                id: Dashboard.RootModal.GetContentId(),
+                useRootModal: true,
                 View: action
             });
-            Dashboard.RootModal.Open();
         });
     }
 

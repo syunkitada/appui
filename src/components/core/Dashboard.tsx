@@ -134,7 +134,7 @@ function Render(input: any) {
         </div>
         <div class="modal-footer">
           <a href="#!" class="modal-close waves-effect waves-green btn-flat left">Cancel</a>
-          <a href="#!" class="waves-effect waves-light btn right">Submit</a>
+          <a href="#!" id="root-modal-submit-button" class="waves-effect waves-light btn right">Submit</a>
         </div>
       </div>
 
@@ -178,6 +178,19 @@ const RootModal = {
     id: "root-modal",
     GetContentId: function () {
         return "root-modal-content";
+    },
+    Init: function (input: any) {
+        const { View, onSubmit } = input;
+        let buttonText = "Submit";
+        if (View.SubmitButtonName) {
+            buttonText = View.SubmitButtonName;
+        }
+        $("#root-modal-submit-button")
+            .text(buttonText)
+            .off("click")
+            .on("click", function (e: any) {
+                onSubmit(e);
+            });
     },
     Open: function () {
         $("#root-modal").modal("open");

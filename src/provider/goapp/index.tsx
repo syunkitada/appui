@@ -263,6 +263,10 @@ class Provider implements IProvider {
             }
         });
     }
+
+    submit_queries(input: any): void {
+        console.log("DEBUG submit_queries");
+    }
 }
 
 const index = {

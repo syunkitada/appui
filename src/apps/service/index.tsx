@@ -141,8 +141,34 @@ function getQueries(input: any) {
     });
 }
 
+function submitQueries(input: any) {
+    const { queries, location, params } = input;
+    const { serviceName, projectName } = locationData.getServiceParams();
+
+    $("#root-content-progress").html('<div class="indeterminate"></div>');
+
+    provider.submit_queries({
+        serviceName,
+        projectName,
+        queries,
+        location,
+        params,
+        onSuccess: function (input: any) {
+            $("#root-content-progress").html(
+                '<div class="determinate" style="width: 0%"></div>'
+            );
+
+            console.log("DEBUG submitQueries onSuccess", input);
+        },
+        onError: function (input: any) {
+            console.log("DEBUG submitQueries onError", input);
+        }
+    });
+}
+
 const index = {
     init,
-    getQueries
+    getQueries,
+    submitQueries
 };
 export default index;
