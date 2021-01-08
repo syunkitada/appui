@@ -133,6 +133,9 @@ function Render(input: any) {
         <div id="root-modal-content" class="modal-content">
         </div>
         <div class="modal-footer">
+          <div id="root-modal-progress" class="progress">
+            <div class="determinate" style="width: 0%"></div>
+          </div>
           <a href="#!" class="modal-close waves-effect waves-green btn-flat left">Cancel</a>
           <a href="#!" id="root-modal-submit-button" class="waves-effect waves-light btn right">Submit</a>
         </div>
@@ -178,6 +181,14 @@ const RootModal = {
     id: "root-modal",
     GetContentId: function () {
         return "root-modal-content";
+    },
+    StartProgress: function () {
+        $("#root-modal-progress").html('<div class="indeterminate"></div>');
+    },
+    StopProgress: function () {
+        $("#root-modal-progress").html(
+            '<div class="determinate" style="width: 0%"></div>'
+        );
     },
     Init: function (input: any) {
         const { View, onSubmit } = input;

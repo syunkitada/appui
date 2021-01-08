@@ -3,7 +3,7 @@ import locationData from "../../data/locationData";
 import Dashboard from "../core/Dashboard";
 
 export function Render(input: any) {
-    const { View, useRootModal, onSubmit } = input;
+    const { View, useRootModal, selectedData } = input;
     let { id } = input;
     if (useRootModal) {
         id = Dashboard.RootModal.GetContentId();
@@ -12,22 +12,32 @@ export function Render(input: any) {
 
     const keyPrefix = `${id}-BasicForm-`;
     const formId = `${keyPrefix}form`;
-    const submitButtonId = `${keyPrefix}submitButton`;
     const fieldTextClass = `${keyPrefix}fieldText`;
-    const inputClass = `${keyPrefix}input`;
     const fieldParams: any = {};
 
     const fields: any = [];
-    for (let i = 0, len = View.Fields.length; i < len; i++) {
-        const field = View.Fields[i];
-        fieldParams[field.Name] = null;
-        let autofocus = "";
-        if (i === 0) {
-            autofocus = "autofocus";
+    if (selectedData) {
+        fields.push('<ul class="collection">');
+        for (let i = 0, len = selectedData.length; i < len; i++) {
+            const rdata = selectedData[i];
+            fields.push(
+                `<li class="collection-item">${rdata[View.SelectKey]}</li>`
+            );
         }
-        switch (field.Kind) {
-            case "text":
-                fields.push(`
+        fields.push("</ul>");
+    }
+
+    if (View.Fields) {
+        for (let i = 0, len = View.Fields.length; i < len; i++) {
+            const field = View.Fields[i];
+            fieldParams[field.Name] = null;
+            let autofocus = "";
+            if (i === 0) {
+                autofocus = "autofocus";
+            }
+            switch (field.Kind) {
+                case "text":
+                    fields.push(`
                 <div class="row">
                     <div class="input-field col s12">
                         <input type="text" id="field1" class="validate ${fieldTextClass}" data-field-idx="${i}" ${autofocus} />
@@ -36,10 +46,11 @@ export function Render(input: any) {
                     </div>
                 </div>
                 `);
-                break;
-            default:
-                fields.push(`UnknownField: ${field.Kind}`);
-                break;
+                    break;
+                default:
+                    fields.push(`UnknownField: ${field.Kind}`);
+                    break;
+            }
         }
     }
 
@@ -118,7 +129,7 @@ export function Render(input: any) {
         }
 
         let isValid = true;
-        for (const [key, value] of Object.entries(fieldParams)) {
+        for (const value of Object.values(fieldParams)) {
             if (!value) {
                 isValid = false;
             }
@@ -130,8 +141,16 @@ export function Render(input: any) {
         service.submitQueries({
             queries: [View.Action],
             location: location,
-            params: fieldParams
+            params: fieldParams,
+            onSuccess: function () {
+                Dashboard.RootModal.StopProgress();
+                input.onSuccess();
+            },
+            onError: function () {
+                Dashboard.RootModal.StopProgress();
+            }
         });
+        Dashboard.RootModal.StartProgress();
     }
 
     $(`#${formId}`).on("submit", onSubmitInternal);

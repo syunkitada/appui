@@ -142,7 +142,7 @@ function getQueries(input: any) {
 }
 
 function submitQueries(input: any) {
-    const { queries, location, params } = input;
+    const { queries, location, params, onSuccess } = input;
     const { serviceName, projectName } = locationData.getServiceParams();
 
     $("#root-content-progress").html('<div class="indeterminate"></div>');
@@ -153,12 +153,13 @@ function submitQueries(input: any) {
         queries,
         location,
         params,
-        onSuccess: function (input: any) {
+        onSuccess: function (_input: any) {
             $("#root-content-progress").html(
                 '<div class="determinate" style="width: 0%"></div>'
             );
 
-            console.log("DEBUG submitQueries onSuccess", input);
+            data.service.data = Object.assign(data.service.data, _input.data);
+            onSuccess();
         },
         onError: function (input: any) {
             console.log("DEBUG submitQueries onError", input);

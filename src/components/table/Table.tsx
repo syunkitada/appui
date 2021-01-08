@@ -3,7 +3,6 @@ import locationData from "../../data/locationData";
 import service from "../../apps/service";
 import Icon from "../icon/Icon";
 import Form from "../form/Form";
-import converter from "../../lib/converter";
 
 export function Render(input: any) {
     const { id, View } = input;
@@ -22,9 +21,13 @@ export function Render(input: any) {
     const tbodyId = `${keyPrefix}tbody`;
     const searchInputId = `${keyPrefix}searchInput`;
     const actionButtonClass = `${keyPrefix}actionButton`;
+    const selectActionButtonClass = `${keyPrefix}actionButton`;
+    const actionButtonsId = `${keyPrefix}actionButtonsId`;
     const exButtonsId = `${keyPrefix}exButtonsId`;
     const filterButtonClass = `${keyPrefix}filterButton`;
     const tooltipClass = `${keyPrefix}tooltip`;
+    const allCheckboxId = `${keyPrefix}allCheckbox`;
+    const checkboxClass = `${keyPrefix}checkbox`;
     const filterMap: any = {};
 
     if (!tableData) {
@@ -63,6 +66,8 @@ export function Render(input: any) {
     let fromIndex = 0;
     let toIndex = rowsPerPage;
     let tmpTableDataLen = 0;
+    let tmpTableData: any = [];
+    const selectedChecks: any[] = [];
 
     for (let i = 0, len = columns.length; i < len; i++) {
         const column = columns[i];
@@ -94,11 +99,85 @@ export function Render(input: any) {
             }
             filterColumns.push({
                 counterMap,
-                key: column.Key,
+                key: key,
                 values: column.FilterValues,
                 currentValue: null
             });
         }
+    }
+
+    function renderActionButtons() {
+        const buttons: any = [];
+        if (View.Actions) {
+            for (let i = 0, len = View.Actions.length; i < len; i++) {
+                const action = View.Actions[i];
+                buttons.push(`
+                  <a class="modal-trigger waves-effect waves-light btn-floating btn-small ${actionButtonClass}" data-action-idx="${i}" data-position="bottom" data-tooltip="${
+                    action.Name
+                }" href="#root-modal">${Icon.Html({ kind: action.Icon })}</a>
+                `);
+            }
+        }
+        $(`#${actionButtonsId}`).html(buttons);
+
+        $(`.${actionButtonClass}`)
+            .tooltip()
+            .on("click", function () {
+                const dataActionIdx = $(this).attr("data-action-idx");
+                if (!dataActionIdx) {
+                    return;
+                }
+                const action = View.Actions[parseInt(dataActionIdx)];
+                Form.Render({
+                    useRootModal: true,
+                    View: action,
+                    onSuccess: function () {
+                        Render(input);
+                        M.toast({ html: "Success" });
+                    }
+                });
+            });
+    }
+
+    function renderSelectActionButtons() {
+        const buttons: any = [];
+        if (View.SelectActions) {
+            for (let i = 0, len = View.SelectActions.length; i < len; i++) {
+                const action = View.SelectActions[i];
+                buttons.push(`
+                  <a class="modal-trigger waves-effect waves-light btn-floating btn-small red lighten-2 ${selectActionButtonClass}" data-action-idx="${i}" data-position="bottom" data-tooltip="${
+                    action.Name
+                }" href="#root-modal">${Icon.Html({ kind: action.Icon })}</a>
+                `);
+            }
+        }
+        $(`#${actionButtonsId}`).html(buttons);
+
+        $(`.${selectActionButtonClass}`)
+            .tooltip()
+            .on("click", function () {
+                const selectedData: any[] = [];
+                for (let i = 0, len = tmpTableData.length; i < len; i++) {
+                    if (selectedChecks[tmpTableData[i]._idx]) {
+                        selectedData.push(tmpTableData[i]);
+                    }
+                }
+
+                const dataActionIdx = $(this).attr("data-action-idx");
+                if (!dataActionIdx) {
+                    return;
+                }
+                const action = View.SelectActions[parseInt(dataActionIdx)];
+                Form.Render({
+                    selectedData,
+                    useRootModal: true,
+                    View: action,
+                    onSuccess: function () {
+                        Render(input);
+                        M.toast({ html: "Success" });
+                    }
+                });
+            });
     }
 
     let isSelectActions = true;
@@ -107,6 +186,8 @@ export function Render(input: any) {
     } else {
         if (filterColumns) {
             for (let i = 0; i < tableDataLen; i++) {
+                tableData[i]._idx = i;
+                selectedChecks.push(false);
                 const rdata = tableData[i];
                 for (let j = 0, lenj = filterColumns.length; j < lenj; j++) {
                     const filterColumn = filterColumns[j];
@@ -128,18 +209,6 @@ export function Render(input: any) {
             }
         }
 
-        const buttons: any = [];
-        if (View.Actions) {
-            for (let i = 0, len = View.Actions.length; i < len; i++) {
-                const action = View.Actions[i];
-                buttons.push(`
-                  <a class="modal-trigger waves-effect waves-light btn-floating btn-small ${actionButtonClass}" data-action-idx="${i}" href="#root-modal">${Icon.Html(
-                    { kind: action.Icon }
-                )}</a>
-                `);
-            }
-        }
-
         $(`#${toolBarId}`).html(`
         <div class="col s2">
           <div class="input-field">
@@ -150,34 +219,39 @@ export function Render(input: any) {
         <div class="col s3">
           <div class="input-field">
             <div id="${exButtonsId}" class="left"></div>
-            <div class="right">${buttons.join("")}</div>
+            <div id="${actionButtonsId}" class="right"></div>
           </div>
         </div>
         <div id="${pagenationId}" class="col s6 pagenation-wrapper"></div>
         `);
 
-        $(`.${actionButtonClass}`).on("click", function () {
-            const dataActionIdx = $(this).attr("data-action-idx");
-            if (!dataActionIdx) {
-                return;
-            }
-            const action = View.Actions[parseInt(dataActionIdx)];
-            Form.Render({
-                useRootModal: true,
-                View: action
-            });
-        });
+        renderActionButtons();
     }
 
     if (isSelectActions) {
         thHtmls.unshift(
-            `<th class="checkbox-wrapper"><label><input type="checkbox" /><span></span></label></th>`
+            `<th class="checkbox-wrapper"><label><input id="${allCheckboxId}" type="checkbox" /><span></span></label></th>`
         );
     }
     $(`#${theadId}`).html(thHtmls.join(""));
 
+    $(`#${allCheckboxId}`)
+        .off("change")
+        .on("change", function () {
+            const checked = $(this).prop("checked");
+            $(`.${checkboxClass}`).prop("checked", checked);
+            for (let i = 0, len = selectedChecks.length; i < len; i++) {
+                selectedChecks[i] = checked;
+            }
+            if (checked) {
+                renderSelectActionButtons();
+            } else {
+                renderActionButtons();
+            }
+        });
+
     function filterTableData() {
-        let tmpTableData: any = [];
+        tmpTableData = [];
         let isSkip = true;
         if (searchRegExp) {
             for (let i = 0; i < tableDataLen; i++) {
@@ -302,7 +376,7 @@ export function Render(input: any) {
             const tdHtmls: any = ["<tr>"];
             if (isSelectActions) {
                 tdHtmls.push(
-                    `<td class="checkbox-wrapper"><label><input type="checkbox" /><span></span></label></td>`
+                    `<td class="checkbox-wrapper"><label><input class="${checkboxClass}" type="checkbox" data-idx="${rdata._idx}" /><span></span></label></td>`
                 );
             }
 
@@ -398,6 +472,31 @@ export function Render(input: any) {
         }
 
         $(`#${tbodyId}`).html(bodyTrHtmls.join(""));
+
+        $(`.${checkboxClass}`)
+            .off("change")
+            .on("change", function () {
+                const dataIdx = $(this).attr("data-idx");
+                if (dataIdx) {
+                    if (selectedChecks[parseInt(dataIdx)] === false) {
+                        selectedChecks[parseInt(dataIdx)] = true;
+                    } else {
+                        selectedChecks[parseInt(dataIdx)] = false;
+                    }
+                    let selected = false;
+                    for (let i = 0, len = selectedChecks.length; i < len; i++) {
+                        if (selectedChecks[i]) {
+                            selected = true;
+                            break;
+                        }
+                    }
+                    if (selected) {
+                        renderSelectActionButtons();
+                    } else {
+                        renderActionButtons();
+                    }
+                }
+            });
 
         $(`.${linkClass}`)
             .off("click")
