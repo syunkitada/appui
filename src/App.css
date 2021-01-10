@@ -181,6 +181,10 @@ th {
     cursor: pointer;
 }
 
+.table-action-buttons {
+    margin: 12px;
+}
+
 .pane h1 {
     font-size: 35px;
     margin: 0px;

@@ -3,6 +3,7 @@ import locationData from "../../data/locationData";
 import service from "../../apps/service";
 import Icon from "../icon/Icon";
 import Form from "../form/Form";
+import color from "../../lib/color";
 
 export function Render(input: any) {
     const { id, View } = input;
@@ -89,6 +90,9 @@ export function Render(input: any) {
             const counterMap: any = {};
             for (let j = 0, lenj = column.FilterValues.length; j < lenj; j++) {
                 const filterValue = column.FilterValues[j];
+                filterValue._colorClass = color.getTextDarkenColorClass(
+                    filterValue.Color
+                );
                 counterMap[filterValue.Value] = 0;
             }
             let key: any;
@@ -210,19 +214,24 @@ export function Render(input: any) {
         }
 
         $(`#${toolBarId}`).html(`
-        <div class="col s2">
-          <div class="input-field">
-            <input id="${searchInputId}" placeholder="Search" type="text">
+        <div class="row">
+            <div class="col s2">
+              <div class="input-field">
+                <input id="${searchInputId}" placeholder="Search" type="text">
+              </div>
+            </div>
+            <div class="col s4">
+              <div class="input-field">
+                <div id="${actionButtonsId}" class="table-action-buttons right"></div>
+              </div>
+            </div>
+            <div id="${pagenationId}" class="col s6 pagenation-wrapper"></div>
+        </div>
+        <div class="row">
+          <div class="col s4">
+            <div id="${exButtonsId}"></div>
           </div>
         </div>
-        <div class="col s1"></div>
-        <div class="col s3">
-          <div class="input-field">
-            <div id="${exButtonsId}" class="left"></div>
-            <div id="${actionButtonsId}" class="right"></div>
-          </div>
-        </div>
-        <div id="${pagenationId}" class="col s6 pagenation-wrapper"></div>
         `);
 
         renderActionButtons();
@@ -330,9 +339,12 @@ export function Render(input: any) {
                 }
 
                 exButtons.push(`
-                <a class="${filterButtonClass} waves-effect waves-light btn btn-small" data-position="bottom" data-idx="${i}" data-val="${
+                <a class="${filterButtonClass} waves-effect waves-light btn white ${
+                    value._colorClass
+                }" data-position="bottom" data-idx="${i}" data-val="${
                     value.Value
-                }">${Icon.Html({
+                }">
+                ${Icon.Html({
                     kind: value.Icon
                 })} ${column.counterMap[value.Value]} ${checked}</span>
                 </a>
@@ -422,7 +434,7 @@ export function Render(input: any) {
                                 tmpValue = "";
                             }
                             filterButton = `
-                            <a class="btn">${Icon.Html({
+                            <a class="${filterValue._colorClass}">${Icon.Html({
                                 kind: filterValue.Icon
                             })}</a>`;
                         }
@@ -448,7 +460,7 @@ export function Render(input: any) {
                             break;
                         case "HideText":
                             columnData = `
-                            <a class="${tooltipClass} btn tooltipped" data-position="bottom" data-tooltip="${columnData}">${Icon.Html(
+                            <a class="${tooltipClass} tooltipped teal-text text-lighten-1" data-position="bottom" data-tooltip="${columnData}">${Icon.Html(
                                 { kind: "Info" }
                             )}</a>
                             `;

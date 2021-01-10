@@ -1,3 +1,4 @@
+import data from "../../data";
 import service from "../../apps/service";
 import locationData from "../../data/locationData";
 import Dashboard from "../core/Dashboard";
@@ -25,27 +26,41 @@ export function Render(input: any) {
             );
         }
         fields.push("</ul>");
+
+        fieldParams.Items = selectedData;
     }
 
     if (View.Fields) {
         for (let i = 0, len = View.Fields.length; i < len; i++) {
             const field = View.Fields[i];
-            fieldParams[field.Name] = null;
-            let autofocus = "";
-            if (i === 0) {
-                autofocus = "autofocus";
+            let value = "";
+            if (field.DefaultFunc) {
+                value = field.DefaultFunc(data.service.data);
             }
+            fieldParams[field.Name] = null;
+            const fieldId = `${keyPrefix}field${i}`;
             switch (field.Kind) {
-                case "text":
+                case "Text":
                     fields.push(`
-                <div class="row">
-                    <div class="input-field col s12">
-                        <input type="text" id="field1" class="validate ${fieldTextClass}" data-field-idx="${i}" ${autofocus} />
-                        <label for="field1">${field.Name}</label>
-                        <span class="helper-text" data-error="wrong" data-success="right"></span>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input type="text" id="${fieldId}" class="validate ${fieldTextClass}" data-field-idx="${i}" value="${value}"/>
+                            <label for="${fieldId}">${field.Name}</label>
+                            <span class="helper-text" data-error="wrong" data-success="right"></span>
+                        </div>
                     </div>
-                </div>
-                `);
+                    `);
+                    break;
+                case "Texts":
+                    fields.push(`
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <textarea id="${fieldId}" class="materialize-textarea ${fieldTextClass}" data-field-idx="${i}">${value}</textarea>
+                            <label for="${fieldId}">${field.Name}</label>
+                            <span class="helper-text" data-error="wrong" data-success="right"></span>
+                        </div>
+                    </div>
+                    `);
                     break;
                 default:
                     fields.push(`UnknownField: ${field.Kind}`);
@@ -138,6 +153,7 @@ export function Render(input: any) {
             return;
         }
 
+        Dashboard.RootModal.StartProgress();
         service.submitQueries({
             queries: [View.Action],
             location: location,
@@ -150,7 +166,6 @@ export function Render(input: any) {
                 Dashboard.RootModal.StopProgress();
             }
         });
-        Dashboard.RootModal.StartProgress();
     }
 
     $(`#${formId}`).on("submit", onSubmitInternal);
@@ -158,6 +173,22 @@ export function Render(input: any) {
     if (useRootModal) {
         Dashboard.RootModal.Init({ View, onSubmit: onSubmitInternal });
         Dashboard.RootModal.Open();
+    }
+
+    M.updateTextFields();
+    if (View.Fields) {
+        for (let i = 0, len = View.Fields.length; i < len; i++) {
+            const field = View.Fields[i];
+            const fieldId = `${keyPrefix}field${i}`;
+            switch (field.Kind) {
+                case "Texts":
+                    M.textareaAutoResize($(`#${fieldId}`));
+                    break;
+            }
+            if (i === 0) {
+                $(`#${fieldId}`).focus();
+            }
+        }
     }
 }
 

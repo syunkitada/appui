@@ -3,6 +3,10 @@ function Html(input: any): string {
     switch (kind) {
         case "Add":
             return `<i class="material-icons left">add_box</i>`;
+        case "Bookmarks":
+            return `<i class="material-icons left">bookmarks</i>`;
+        case "BookmarkBorder":
+            return `<i class="material-icons left">bookmark_border</i>`;
         case "Check":
             return `<i class="material-icons left">check_circle</i>`;
         case "Uncheck":
@@ -20,7 +24,7 @@ function Html(input: any): string {
         case "Save":
             return `<i class="material-icons left">save</i>`;
         default:
-            return `UnknownIcon`;
+            return `<span>Unknown: ${kind}</span>`;
     }
 }
 
