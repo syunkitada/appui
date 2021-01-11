@@ -20,16 +20,16 @@ class Provider {
         return this.provider.logout(input);
     }
 
-    get_service_index(input: any): void {
-        return this.provider.get_service_index(input);
+    getServiceIndex(input: any): void {
+        return this.provider.getServiceIndex(input);
     }
 
-    get_queries(input: any): void {
-        return this.provider.get_queries(input);
+    getQueries(input: any): void {
+        return this.provider.getQueries(input);
     }
 
-    submit_queries(input: any): void {
-        return this.provider.submit_queries(input);
+    submitQueries(input: any): void {
+        return this.provider.submitQueries(input);
     }
 }
 

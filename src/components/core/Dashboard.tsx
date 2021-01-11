@@ -1,3 +1,4 @@
+import service from "../../apps/service";
 import data from "../../data";
 import locationData from "../../data/locationData";
 
@@ -14,7 +15,6 @@ function renderServices(input: any) {
         projectText = "Projects";
         tmpServiceMap = ServiceMap;
     }
-    console.log("DEBUG projectName", projectName, tmpServiceMap);
 
     const servicesHtmls = [];
     const tmpProjectMap: any = {};
@@ -102,7 +102,12 @@ function Render(input: any) {
       <ul class="left">
       <a href="#!" id="menu-toggle"><i class="material-icons">menu</i></a>
       </ul>
-      <a href="#!" class="brand-logo">Home</a>
+      <a href="#!" id="nav-logo">Home</a>
+
+      <div id="nav-breadcrumb" class="nav-wrapper">
+        <div id="nav-path" class="col s12">
+        </div>
+      </div>
 
       <ul class="right">
         <li><a class="dropdown-trigger" href="#!" data-target="dropdown1">${Name} <i class="material-icons right">arrow_drop_down</i></a></li>
@@ -177,6 +182,48 @@ function Render(input: any) {
     return;
 }
 
+const NavPath = {
+    Render: function (input: any) {
+        const { location } = input;
+        const navs: any[] = [];
+        let parents: any[] = [];
+        for (let i = 0, len = location.Path.length; i < len; i++) {
+            let pathName = location.Path[i];
+            const path = location.Path.slice(0, i + 1);
+            const view = service.getViewFromPath(data.service.rootView, path);
+            switch (view.Kind) {
+                case "Tabs":
+                case "Panes":
+                    parents.push(pathName);
+                    break;
+                default:
+                    if (parents.length > 0) {
+                        pathName = parents.join(".") + "." + pathName;
+                        parents = [];
+                    }
+                    navs.push(`
+                    <a href="#!" class="breadcrumb nav-path-link" data-path="${path.join(
+                        "@"
+                    )}">${pathName}</a>
+                    `);
+                    break;
+            }
+        }
+        $("#nav-path").html(navs.join(""));
+        $(".nav-path-link")
+            .off("click")
+            .on("click", function (e: any) {
+                e.preventDefault();
+                const dataPath = $(this).attr("data-path");
+                if (dataPath) {
+                    const location = locationData.getLocationData();
+                    location.Path = dataPath.split("@");
+                    service.getQueries({ location });
+                }
+            });
+    }
+};
+
 const RootModal = {
     id: "root-modal",
     GetContentId: function () {
@@ -210,6 +257,7 @@ const RootModal = {
 
 const index = {
     Render,
+    NavPath,
     RootModal
 };
 export default index;

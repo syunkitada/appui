@@ -1,3 +1,4 @@
+import Pane from "./pane/Pane";
 import Panes from "./panes/Panes";
 import Tabs from "./tabs/Tabs";
 import Panels from "./panels/Panels";
@@ -11,6 +12,8 @@ function Render(input: any) {
     switch (View.Kind) {
         case "Tabs":
             return Tabs.Render(input);
+        case "Pane":
+            return Pane.Render(input);
         case "Panes":
             return Panes.Render(input);
         case "Panels":

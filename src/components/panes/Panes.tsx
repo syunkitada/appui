@@ -52,6 +52,7 @@ export function Render(input: any) {
         if (pane.Name !== indexPath) {
             continue;
         }
+        console.log("DEBUG pane", pane);
 
         $(`#${id}`).html(`
         <div class="pane">

@@ -10,10 +10,31 @@ function init() {
 
     let location = { Path: ["Root"] };
     const tmpLocationData = locationData.getLocationData();
-    let initLocation = false;
+    let initLocation = true;
     if (tmpLocationData.Path) {
         location = tmpLocationData;
-        initLocation = true;
+        initLocation = false;
+    }
+
+    function getServiceIndexOnSuccess(input: any) {
+        if (initLocation && input.Index.DefaultRoute.Path) {
+            location.Path = input.Index.DefaultRoute.Path;
+            locationData.setLocationData(location);
+        }
+
+        data.service = {
+            data: input.Data,
+            rootView: input.Index.View
+        };
+
+        Dashboard.NavPath.Render({
+            location
+        });
+
+        Index.Render({
+            id: "root-content",
+            View: input.Index.View
+        });
     }
 
     Dashboard.Render({
@@ -21,32 +42,16 @@ function init() {
         logout: auth.logout,
         onClickService: function (input: any) {
             const { serviceName, projectName } = input;
-            const initLocation = false;
+            initLocation = true;
             const location = { Path: ["Root"] };
 
             locationData.setServiceParams(input);
 
-            provider.get_service_index({
+            provider.getServiceIndex({
                 serviceName,
                 projectName,
-                initLocation,
                 location,
-                onSuccess: function (input: any) {
-                    if (input.Index.DefaultRoute.Path) {
-                        location.Path = input.Index.DefaultRoute.Path;
-                        locationData.setLocationData(location);
-                    }
-
-                    data.service = {
-                        data: input.Data,
-                        rootView: input.Index.View
-                    };
-
-                    Index.Render({
-                        id: "root-content",
-                        View: input.Index.View
-                    });
-                },
+                onSuccess: getServiceIndexOnSuccess,
                 onError: function (input: any) {
                     console.log("onError", input);
                 }
@@ -54,26 +59,11 @@ function init() {
         }
     });
 
-    provider.get_service_index({
+    provider.getServiceIndex({
         serviceName,
         projectName,
-        initLocation,
         location,
-        onSuccess: function (input: any) {
-            if (!initLocation && input.Index.DefaultRoute.Path) {
-                location.Path = input.Index.DefaultRoute.Path;
-                locationData.setLocationData(location);
-            }
-            data.service = {
-                data: input.Data,
-                rootView: input.Index.View
-            };
-
-            Index.Render({
-                id: "root-content",
-                View: input.Index.View
-            });
-        },
+        onSuccess: getServiceIndexOnSuccess,
         onError: function (input: any) {
             console.log("onError", input);
         }
@@ -114,7 +104,7 @@ function getQueries(input: any) {
     locationData.setLocationData(location);
     $("#root-content-progress").html('<div class="indeterminate"></div>');
 
-    provider.get_queries({
+    provider.getQueries({
         serviceName,
         projectName,
         location,
@@ -124,8 +114,12 @@ function getQueries(input: any) {
             );
 
             data.service.data = Object.assign(data.service.data, input.data);
+
+            Dashboard.NavPath.Render({
+                location
+            });
+
             if (view) {
-                console.log("DEBUG get_queries", view);
                 Index.Render(view);
             } else {
                 Index.Render({
@@ -147,7 +141,7 @@ function submitQueries(input: any) {
 
     $("#root-content-progress").html('<div class="indeterminate"></div>');
 
-    provider.submit_queries({
+    provider.submitQueries({
         serviceName,
         projectName,
         queries,
@@ -169,6 +163,7 @@ function submitQueries(input: any) {
 
 const index = {
     init,
+    getViewFromPath,
     getQueries,
     submitQueries
 };

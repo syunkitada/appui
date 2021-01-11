@@ -117,7 +117,7 @@ class Provider implements IProvider {
         });
     }
 
-    get_service_index(input: any): void {
+    getServiceIndex(input: any): void {
         const { serviceName, projectName, location, initLocation } = input;
         let queries: any = null;
 
@@ -207,7 +207,7 @@ class Provider implements IProvider {
         });
     }
 
-    get_queries(input: any): void {
+    getQueries(input: any): void {
         const { serviceName, projectName, location } = input;
 
         const queryData = Object.assign(
@@ -264,7 +264,7 @@ class Provider implements IProvider {
         });
     }
 
-    submit_queries(input: any): void {
+    submitQueries(input: any): void {
         console.log("DEBUG submit_queries");
     }
 }

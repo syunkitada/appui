@@ -7,9 +7,10 @@ import color from "../../lib/color";
 
 export function Render(input: any) {
     const { id, View } = input;
+    const location = locationData.getLocationData();
+
     let { tableData } = input;
     const keyPrefix = `${id}-Table-`;
-    const location = locationData.getLocationData();
     if (!tableData) {
         tableData = data.service.data[View.DataKey];
     }
@@ -529,7 +530,7 @@ export function Render(input: any) {
                         Params: params,
                         SearchQueries: {}
                     };
-                    service.getQueries({ View, location: newLocation });
+                    service.getQueries({ location: newLocation });
                 }
             });
     }
