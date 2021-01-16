@@ -3,13 +3,18 @@ import Panes from "./panes/Panes";
 import Tabs from "./tabs/Tabs";
 import Panels from "./panels/Panels";
 import Table from "./table/Table";
+import Title from "./core/Title";
 import Box from "./box/Box";
 import Notfound from "./core/Notfound";
+import logger from "../lib/logger";
 
 function Render(input: any) {
     const { View } = input;
-    console.log("IndexRender", input);
+    logger.info("Index.Render", input);
+
     switch (View.Kind) {
+        case "Title":
+            return Title.Render(input);
         case "Tabs":
             return Tabs.Render(input);
         case "Pane":

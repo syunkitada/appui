@@ -17,7 +17,6 @@ export function Render(input: any) {
         const searchQueryValue = location.SearchQueries[input.Name];
         switch (input.Type) {
             case "Select":
-                console.log("DEBUG location", location.SearchQueries);
                 let options = [];
                 for (let i = 0, len = input.Data.length; i < len; i++) {
                     const option = input.Data[i];

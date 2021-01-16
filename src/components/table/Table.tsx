@@ -61,9 +61,9 @@ export function Render(input: any) {
 
     const filterColumns: any[] = [];
 
-    const rowsPerPageOptions = [10, 20, 30];
+    const rowsPerPageOptions = View.RowsPerPageOptions;
     let page = 1;
-    let rowsPerPage = 10;
+    let rowsPerPage = View.RowsPerPage;
     let filteredTableData = tableData;
     let fromIndex = 0;
     let toIndex = rowsPerPage;
@@ -75,7 +75,11 @@ export function Render(input: any) {
         const column = columns[i];
 
         if (column.IsSearch) {
-            searchColumns.push(column.Name);
+            if (column.Key) {
+                searchColumns.push(column.Key);
+            } else {
+                searchColumns.push(column.Name);
+            }
         }
 
         let alignClass = "right-align";
@@ -218,7 +222,7 @@ export function Render(input: any) {
         <div class="row">
             <div class="col s2">
               <div class="input-field">
-                <input id="${searchInputId}" placeholder="Search" type="text">
+                <input id="${searchInputId}" placeholder="Search" type="text" autocomplete="off">
               </div>
             </div>
             <div class="col s4">
@@ -331,12 +335,12 @@ export function Render(input: any) {
             const column = filterColumns[i];
             for (let j = 0, lenj = column.values.length; j < lenj; j++) {
                 const value = column.values[j];
-                let checked = "";
+                let filtered = "";
                 if (
                     column.currentValue &&
                     column.currentValue === value.Value.toString()
                 ) {
-                    checked = "checked";
+                    filtered = "filtered";
                 }
 
                 exButtons.push(`
@@ -347,7 +351,7 @@ export function Render(input: any) {
                 }">
                 ${Icon.Html({
                     kind: value.Icon
-                })} ${column.counterMap[value.Value]} ${checked}</span>
+                })} ${column.counterMap[value.Value]} ${filtered}</span>
                 </a>
                 `);
             }
@@ -430,10 +434,6 @@ export function Render(input: any) {
                                 isShowCells = true;
                             }
 
-                            let tmpValue = columnData;
-                            if (column.Kind === "Hidden") {
-                                tmpValue = "";
-                            }
                             filterButton = `
                             <a class="${filterValue._colorClass}">${Icon.Html({
                                 kind: filterValue.Icon
@@ -457,7 +457,7 @@ export function Render(input: any) {
                             }
                             break;
                         case "Hidden":
-                            console.log("TODO");
+                            columnData = "";
                             break;
                         case "HideText":
                             columnData = `
@@ -520,10 +520,17 @@ export function Render(input: any) {
                     const column = columns[splitedId[splitedId.length - 1]];
                     const rdata = tableData[splitedId[splitedId.length - 2]];
                     const params = Object.assign({}, location.Params);
-                    if (rdata[column.LinkKey]) {
-                        params[column.LinkKey] = rdata[column.LinkKey];
+                    if (column.LinkKeys) {
+                        for (
+                            let i = 0, len = column.LinkKeys.length;
+                            i < len;
+                            i++
+                        ) {
+                            params[column.LinkKeys[i]] =
+                                rdata[column.LinkKeys[i]];
+                        }
                     } else {
-                        params[column.LinkKey] = rdata[column.Name];
+                        params[column.Name] = rdata[column.Name];
                     }
                     const newLocation = {
                         Path: column.LinkPath,

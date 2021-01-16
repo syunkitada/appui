@@ -1,6 +1,7 @@
 import service from "../../apps/service";
 import locationData from "../../data/locationData";
 import Index from "../../components/Index";
+import converter from "../../lib/converter";
 
 export function Render(input: any) {
     const { id, View } = input;
@@ -59,15 +60,21 @@ export function Render(input: any) {
         `);
     }
 
+    let title = "";
+    if (View.Title) {
+        title = `<h4>${converter.formatText(View.Title)}</h4>`;
+    }
+
     $(`#${id}`).html(`
-<div class="row">
-  <div class="col s12">
-    <ul id="${prefixKey}tabs" class="tabs">
-      ${tabs.join("")}
-    </ul>
-  </div>
-  ${tabContents.join("")}
-</div>
+    <div class="row">
+      ${title}
+      <div class="col s12">
+        <ul id="${prefixKey}tabs" class="tabs">
+          ${tabs.join("")}
+        </ul>
+      </div>
+      ${tabContents.join("")}
+    </div>
     `);
 
     $(`#${prefixKey}tabs`).tabs({

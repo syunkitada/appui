@@ -8,6 +8,10 @@ class Provider {
         this.provider = provider;
     }
 
+    getLoginView(input: any): any {
+        return this.provider.getLoginView(input);
+    }
+
     loginWithToken(input: any): void {
         return this.provider.loginWithToken(input);
     }

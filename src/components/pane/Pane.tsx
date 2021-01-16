@@ -1,15 +1,10 @@
-import data from "../../data";
 import locationData from "../../data/locationData";
-import service from "../../apps/service";
-import Icon from "../icon/Icon";
-import Form from "../form/Form";
-import color from "../../lib/color";
 import Index from "../Index";
 
 export function Render(input: any) {
     const { id, View } = input;
+    const keyPrefix = `${id}-Pane-`;
     const location = locationData.getLocationData();
-    console.log("DEBUG View", location.Path);
     if (View.Children) {
         if (location.Path[location.Path.length - 1] !== View.Name) {
             let nextViewName = "";
@@ -30,7 +25,18 @@ export function Render(input: any) {
         }
     }
 
-    Index.Render(Object.assign({}, input, { View: View.View }));
+    const htmls = [];
+    for (let i = 0, len = View.Views.length; i < len; i++) {
+        htmls.push(`<div id="${keyPrefix}${i}"></div>`);
+    }
+    $(`#${id}`).html(htmls.join(""));
+
+    for (let i = 0, len = View.Views.length; i < len; i++) {
+        const view = View.Views[i];
+        Index.Render(
+            Object.assign({}, input, { id: `${keyPrefix}${i}`, View: view })
+        );
+    }
 }
 
 const index = {

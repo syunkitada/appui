@@ -35,6 +35,10 @@ function query(input: any) {
 }
 
 class Provider implements IProvider {
+    getLoginView(input: any): any {
+        return {};
+    }
+
     loginWithToken(input: any): void {
         const serviceName = "Auth";
         const queries = [

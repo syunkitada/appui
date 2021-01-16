@@ -58,33 +58,30 @@ export function Render(input: any) {
         }
 
         panelsHtmls.push(`
-<div class="card">
-  <div class="card-header">
-    <h2 class="mb-0">
-      <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="${panelId}" aria-expanded="${expanded}">
-        ${panel.Name} ${subName}
-      </button>
-    </h2>
-  </div>
+        <div class="card">
+          <div class="card-header">
+            <h2 class="mb-0">
+              <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="${panelId}" aria-expanded="${expanded}">
+                ${panel.Name} ${subName}
+              </button>
+            </h2>
+          </div>
 
-  <div id="${panelId}" class="collapse show" aria-labelledby="headingOne" data-parent="#${panelId}">
-    <div class="card-body">
-    </div>
-  </div>
-</div>
+          <div id="${panelId}" class="collapse show" aria-labelledby="headingOne" data-parent="#${panelId}">
+            <div class="card-body">
+            </div>
+          </div>
+        </div>
         `);
     }
 
     $(`#${id}`).html(`
-                     <div>
-${panelsHtmls.join("")}
-    </div>
+    <div>${panelsHtmls.join("")}</div>
     `);
 
     for (let i = 0, len = View.Children.length; i < len; i++) {
         const panel = View.Children[i];
         const panelId = `${id}-Panels-${i}`;
-        console.log("DEBUG panel", panel, panelId);
 
         Index.Render({
             id: panelId,

@@ -4,6 +4,7 @@ import provider from "../../provider";
 import data from "../../data";
 import locationData from "../../data/locationData";
 import Index from "../../components/Index";
+import logger from "../../lib/logger";
 
 function init() {
     const { serviceName, projectName } = locationData.getServiceParams();
@@ -53,7 +54,7 @@ function init() {
                 location,
                 onSuccess: getServiceIndexOnSuccess,
                 onError: function (input: any) {
-                    console.log("onError", input);
+                    logger.error("service.init.onClickService.onError", input);
                 }
             });
         }
@@ -65,7 +66,7 @@ function init() {
         location,
         onSuccess: getServiceIndexOnSuccess,
         onError: function (input: any) {
-            console.log("onError", input);
+            logger.error("service.init.getServiceIndex.onError", input);
         }
     });
 }
@@ -88,11 +89,7 @@ function getQueries(input: any) {
     const { location, view } = input;
     const { serviceName, projectName } = locationData.getServiceParams();
     const nextView = getViewFromPath(data.service.rootView, location.Path);
-    // const subPathMap = location.SubPathMap
-    // location.DataQueries = index.DataQueries
-    // location.WebSocketQuery = index.WebSocketQuery
-    // const params = Object.assign(
-    // )
+
     location.DataQueries = nextView.DataQueries;
     if (view && view.View.ViewParams) {
         location.ViewParams = view.View.ViewParams;
@@ -100,7 +97,8 @@ function getQueries(input: any) {
         location.ViewParams = {};
     }
 
-    console.log("DEBUG getQueries", location);
+    logger.info("service.getQueries", location, view);
+
     locationData.setLocationData(location);
     $("#root-content-progress").html('<div class="indeterminate"></div>');
 
@@ -127,10 +125,10 @@ function getQueries(input: any) {
                     View: data.service.rootView
                 });
             }
-            console.log("DEBUG getQueries onSuccess", input);
+            logger.info("getQueries.onSuccess", input);
         },
         onError: function (input: any) {
-            console.log("DEBUG getQueries onError", input);
+            logger.error("getQueries.onError", input);
         }
     });
 }
@@ -148,6 +146,8 @@ function submitQueries(input: any) {
         location,
         params,
         onSuccess: function (_input: any) {
+            logger.info("submitQueries.onInfo", input, _input);
+
             $("#root-content-progress").html(
                 '<div class="determinate" style="width: 0%"></div>'
             );
@@ -155,8 +155,8 @@ function submitQueries(input: any) {
             data.service.data = Object.assign(data.service.data, _input.data);
             onSuccess();
         },
-        onError: function (input: any) {
-            console.log("DEBUG submitQueries onError", input);
+        onError: function (_input: any) {
+            logger.error("submitQueries.onError", input, _input);
         }
     });
 }
