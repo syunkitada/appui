@@ -27,7 +27,7 @@ nav .button-collapse i {
     font-size: 1.6rem;
     padding: 0px 10px 0px 10px;
     display: inline-block;
-    width: 240px;
+    width: 100px;
 }
 
 #nav-breadcrumb {
@@ -153,12 +153,28 @@ nav .button-collapse i {
     #content-wrapper {
         margin-left: 240px;
     }
+
+    #nav-logo {
+        width: 240px;
+    }
+
+    #nav-breadcrumb {
+        display: block;
+    }
+}
+
+#nav-breadcrumb {
+    display: none;
 }
 
 .table-wrapper td,
 th {
     padding: 5px 5px;
     max-width: 300px;
+}
+
+.table-wrapper .table-time {
+    min-width: 200px;
 }
 
 .table-wrapper .input-field {

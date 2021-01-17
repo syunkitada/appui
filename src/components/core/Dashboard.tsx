@@ -49,10 +49,10 @@ function renderServices(input: any) {
             className = "sidebar-item-active";
         }
         servicesHtmls.push(`
-    <li class="sidebar-item">
-      <a class="${idPrefix}-Service ${className}" href="#">${service}</a>
-    </li>
-    `);
+        <li class="sidebar-item">
+          <a class="${idPrefix}-Service ${className}" href="#">${service}</a>
+        </li>
+        `);
     }
 
     $(`#${id}`).html(servicesHtmls.join(""));
@@ -150,7 +150,7 @@ function Render(input: any) {
       <!-- /#page-content-wrapper -->
 
     </div>
-  `);
+    `);
 
     $("#root-modal").modal();
 

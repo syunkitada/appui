@@ -44,7 +44,7 @@ export function Render(input: any) {
       <div id="${toolBarId}">
       </div>
 
-      <div class="col s12" style="overflow: auto;">
+      <div class="row" style="overflow-x:auto">
         <table class="table">
           <thead><tr id="${theadId}"></tr></thead>
           <tbody id="${tbodyId}"></tbody>
@@ -89,7 +89,16 @@ export function Render(input: any) {
         if (column.Align) {
             alignClass = "left-align";
         }
-        thHtmls.push(`<th class="${alignClass}">${column.Name}</th>`);
+        switch (column.Kind) {
+            case "Time":
+                thHtmls.push(`<th class="${alignClass}">${column.Name}</th>`);
+                break;
+            default:
+                thHtmls.push(
+                    `<th class="${alignClass} table-time">${column.Name}</th>`
+                );
+                break;
+        }
 
         if (column.FilterValues) {
             const counterMap: any = {};
@@ -220,20 +229,20 @@ export function Render(input: any) {
 
         $(`#${toolBarId}`).html(`
         <div class="row">
-            <div class="col s2">
-              <div class="input-field">
-                <input id="${searchInputId}" placeholder="Search" type="text" autocomplete="off">
-              </div>
+          <div class="col m2">
+            <div class="input-field">
+              <input id="${searchInputId}" placeholder="Search" type="text" autocomplete="off">
             </div>
-            <div class="col s4">
-              <div class="input-field">
-                <div id="${actionButtonsId}" class="table-action-buttons right"></div>
-              </div>
+          </div>
+          <div class="col m4">
+            <div class="input-field">
+              <div id="${actionButtonsId}" class="table-action-buttons right"></div>
             </div>
-            <div id="${pagenationId}" class="col s6 pagenation-wrapper"></div>
+          </div>
+          <div id="${pagenationId}" class="col m6 pagenation-wrapper right"></div>
         </div>
         <div class="row">
-          <div class="col s4">
+          <div class="col m4">
             <div id="${exButtonsId}"></div>
           </div>
         </div>
@@ -447,8 +456,10 @@ export function Render(input: any) {
                         `<td class="${alignClass}" id="${keyPrefix}${i}-${j}">${filterButton}</td>`
                     );
                 } else {
+                    let columnClass = "";
                     switch (column.Kind) {
                         case "Time":
+                            columnClass = "table-time";
                             const time: any = new Date(columnData);
                             if (!isNaN(time.getTime())) {
                                 columnData = time.toISOString();
@@ -469,12 +480,12 @@ export function Render(input: any) {
                     }
                     if (column.LinkPath) {
                         tdHtmls.push(`
-                        <td class="link ${alignClass} ${linkClass}" id="${keyPrefix}${i}-${j}">
+                        <td class="link ${alignClass} ${columnClass} ${linkClass}" id="${keyPrefix}${i}-${j}">
                           ${columnData}
                         </td>`);
                     } else {
                         tdHtmls.push(
-                            `<td class="${alignClass}" id="${keyPrefix}${i}-${j}">${columnData}</td>`
+                            `<td class="${alignClass} ${columnClass}" id="${keyPrefix}${i}-${j}">${columnData}</td>`
                         );
                     }
                 }
@@ -578,6 +589,7 @@ export function Render(input: any) {
         }
 
         $(`#${pagenationId}`).html(`
+        <div class="col m6">
         <ul class="pagination right">
           <li>
             Rows per page:
@@ -588,12 +600,17 @@ export function Render(input: any) {
             </div>
             ${fromIndex + 1}-${toIndex + 1} of ${tmpTableDataLen}
           </li>
+        </ul>
+        </div>
+        <div class="col m6">
+        <ul class="pagination right">
           <li class="waves-effect ${disabledLeft}"><a class="${pagenationPageClass}" href="first"><i class="material-icons">first_page</i></a></li>
           <li class="waves-effect ${disabledLeft}"><a class="${pagenationPageClass}" href="prev"><i class="material-icons">chevron_left</i></a></li>
           ${pageHtmls.join("")}
           <li class="waves-effect ${disabledRight}"><a class="${pagenationPageClass}" href="next"><i class="material-icons">chevron_right</i></a></li>
           <li class="waves-effect ${disabledRight}"><a class="${pagenationPageClass}" href="last"><i class="material-icons">last_page</i></a></li>
         </ul>
+        </div>
         `);
 
         $(`#${pagenationRowsPerPageId}`)
