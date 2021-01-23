@@ -1,0 +1,48 @@
+.table-wrapper td,
+th {
+    padding: 5px 5px;
+    max-width: 300px;
+}
+
+.table-wrapper .table-time {
+    min-width: 200px;
+}
+
+.table-wrapper .input-field {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.table-wrapper [type="checkbox"] + span:not(.lever) {
+    height: 18px;
+    line-height: 18px;
+}
+
+.table-wrapper .checkbox-wrapper {
+    width: 1px;
+}
+
+.pagenation-wrapper select {
+    height: 35px;
+}
+
+.table-wrapper .link {
+    color: #039be5;
+}
+
+.table-wrapper .link:hover {
+    background-color: #f5f5f5;
+    cursor: pointer;
+}
+
+.pagination li a {
+    padding: 0 0 0 5px;
+}
+
+.pagenation-page {
+    padding: 0 7px;
+}
+
+.table-action-buttons {
+    margin: 12px;
+}

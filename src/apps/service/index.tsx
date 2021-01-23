@@ -36,6 +36,8 @@ function init() {
             id: "root-content",
             View: input.Index.View
         });
+
+        Dashboard.RootContentProgress.StopProgress();
     }
 
     Dashboard.Render({
@@ -48,6 +50,7 @@ function init() {
 
             locationData.setServiceParams(input);
 
+            Dashboard.RootContentProgress.StartProgress();
             provider.getServiceIndex({
                 serviceName,
                 projectName,
@@ -60,6 +63,7 @@ function init() {
         }
     });
 
+    Dashboard.RootContentProgress.StartProgress();
     provider.getServiceIndex({
         serviceName,
         projectName,
@@ -100,16 +104,14 @@ function getQueries(input: any) {
     logger.info("service.getQueries", location, view);
 
     locationData.setLocationData(location);
-    $("#root-content-progress").html('<div class="indeterminate"></div>');
+    Dashboard.RootContentProgress.StartProgress();
 
     provider.getQueries({
         serviceName,
         projectName,
         location,
         onSuccess: function (input: any) {
-            $("#root-content-progress").html(
-                '<div class="determinate" style="width: 0%"></div>'
-            );
+            Dashboard.RootContentProgress.StopProgress();
 
             data.service.data = Object.assign(data.service.data, input.data);
 
@@ -137,7 +139,7 @@ function submitQueries(input: any) {
     const { queries, location, params, onSuccess } = input;
     const { serviceName, projectName } = locationData.getServiceParams();
 
-    $("#root-content-progress").html('<div class="indeterminate"></div>');
+    Dashboard.RootContentProgress.StartProgress();
 
     provider.submitQueries({
         serviceName,
@@ -148,9 +150,7 @@ function submitQueries(input: any) {
         onSuccess: function (_input: any) {
             logger.info("submitQueries.onInfo", input, _input);
 
-            $("#root-content-progress").html(
-                '<div class="determinate" style="width: 0%"></div>'
-            );
+            Dashboard.RootContentProgress.StopProgress();
 
             data.service.data = Object.assign(data.service.data, _input.data);
             onSuccess();

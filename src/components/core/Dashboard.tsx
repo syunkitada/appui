@@ -1,9 +1,11 @@
+import "./Dashboard.css";
+
 import service from "../../apps/service";
 import data from "../../data";
 import locationData from "../../data/locationData";
 
 function renderServices(input: any) {
-    const { id, idPrefix, serviceName, projectName, onClickService } = input;
+    const { id, keyPrefix, serviceName, projectName, onClickService } = input;
     const { ServiceMap, ProjectServiceMap } = data.auth.Authority;
 
     let tmpServiceMap: any = null;
@@ -29,7 +31,7 @@ function renderServices(input: any) {
         const projectHtml = `
         <li class="list-group-item list-group-item-action sidebar-item">
           <div class="input-field col s12 autocomplete-wrapper">
-            <input type="text" id="${idPrefix}inputProject" class="autocomplete">
+            <input type="text" id="${keyPrefix}inputProject" class="autocomplete">
             <label for="autocomplete-input">${projectText}</label>
             <i class="material-icons">input</i>
             <span class="hint">Select Project</span>
@@ -50,19 +52,19 @@ function renderServices(input: any) {
         }
         servicesHtmls.push(`
         <li class="sidebar-item">
-          <a class="${idPrefix}-Service ${className}" href="#">${service}</a>
+          <a class="${keyPrefix}-Service ${className}" href="#">${service}</a>
         </li>
         `);
     }
 
     $(`#${id}`).html(servicesHtmls.join(""));
 
-    $(`#${idPrefix}inputProject`).autocomplete({
+    $(`#${keyPrefix}inputProject`).autocomplete({
         data: tmpProjectMap,
         minLength: 0
     });
 
-    $(`.${idPrefix}-Service`).on("click", function (e) {
+    $(`.${keyPrefix}-Service`).on("click", function (e) {
         const serviceName = $(this).text();
         onClickService({
             projectName: projectName,
@@ -72,7 +74,7 @@ function renderServices(input: any) {
         renderServices(Object.assign({}, input, { projectName, serviceName }));
     });
 
-    $(`.${idPrefix}-Project`).on("click", function (e) {
+    $(`.${keyPrefix}-Project`).on("click", function (e) {
         const projectName = $(this).text();
         const serviceName = "HomeProject";
         onClickService({
@@ -90,48 +92,44 @@ function Render(input: any) {
 
     const { serviceName, projectName } = locationData.getServiceParams();
 
-    const idPrefix = `${input.id}-Dashboard-`;
+    const keyPrefix = `${input.id}-Dashboard-`;
 
     $(`#${id}`).html(`
-    <ul id="dropdown1" class="dropdown-content">
-      <li><a href="#!" id="DashboardLogout">Log out</a></li>
+    <ul id="dashboard-dropdown" class="dropdown-content">
+      <li><a href="#!" id="dashboard-logout">Log out</a></li>
     </ul>
 
-    <nav id="nav-header">
+    <nav id="dashboard-nav-header">
       <div class="nav-wrapper">
-      <ul class="left">
-      <a href="#!" id="menu-toggle"><i class="material-icons">menu</i></a>
-      </ul>
-      <a href="#!" id="nav-logo">Home</a>
+        <ul class="left">
+        <a href="#!" id="dashboard-menu-toggle"><i class="material-icons">menu</i></a>
+        </ul>
+        <a href="#!" id="dashboard-nav-logo">Home</a>
 
-      <div id="nav-breadcrumb" class="nav-wrapper">
-        <div id="nav-path" class="col s12">
+        <div id="nav-breadcrumb" class="nav-wrapper">
+          <div id="nav-path" class="col s12">
+          </div>
         </div>
-      </div>
 
-      <ul class="right">
-        <li><a class="dropdown-trigger" href="#!" data-target="dropdown1">${Name} <i class="material-icons right">arrow_drop_down</i></a></li>
-      </ul>
+        <ul class="right">
+          <li><a class="dropdown-trigger" href="#!" data-target="dashboard-dropdown">${Name} <i class="material-icons right">arrow_drop_down</i></a></li>
+        </ul>
+
+        <div id="dashboard-root-content-progress" class="progress" style="display: none;">
+          <div class="determinate" style="width: 0%"></div>
+        </div>
       </div>
     </nav>
 
-    <!-- Sidebar -->
-    <div class="border-right teal white" id="sidebar-wrapper">
-      <ul id="${idPrefix}-Services" class="list-group list-group-flush" style="width: 100%;">
-      </ul>
+    <div class="border-right teal white" id="dashboard-sidebar-wrapper">
+      <ul id="${keyPrefix}-Services" class="list-group list-group-flush" style="width: 100%;"></ul>
     </div>
-    <!-- /#sidebar-wrapper -->
 
-    <div class="bg-white" id="content-wrapper">
-      <!-- Page Content -->
-      <div id="page-content-wrapper">
-        <div id="root-content-progress" class="progress">
-          <div class="determinate" style="width: 0%"></div>
-        </div>
+    <div class="bg-white" id="dashboard-content-wrapper">
 
-        <div class="container-fluid">
-          <div id="root-content"></div>
-        </div>
+      <div class="container-fluid">
+        <div id="root-content"></div>
+      </div>
 
       <!-- Modal Structure -->
       <div id="root-modal" class="modal">
@@ -145,10 +143,6 @@ function Render(input: any) {
           <a href="#!" id="root-modal-submit-button" class="waves-effect waves-light btn right">Submit</a>
         </div>
       </div>
-
-      </div>
-      <!-- /#page-content-wrapper -->
-
     </div>
     `);
 
@@ -156,8 +150,8 @@ function Render(input: any) {
 
     renderServices(
         Object.assign({}, input, {
-            id: `${idPrefix}-Services`,
-            idPrefix: idPrefix,
+            id: `${keyPrefix}-Services`,
+            keyPrefix: keyPrefix,
             serviceName,
             projectName
         })
@@ -165,17 +159,12 @@ function Render(input: any) {
 
     $(".dropdown-trigger").dropdown();
 
-    $("#menu-toggle").on("click", function (e) {
+    $("#dashboard-menu-toggle").on("click", function (e) {
         e.preventDefault();
-        $("#sidebar-wrapper").toggleClass("toggled");
+        $("#dashboard-sidebar-wrapper").toggleClass("toggled");
     });
 
-    $("#header-menu-toggle").on("click", function (e) {
-        e.preventDefault();
-        $("#header-menu").toggleClass("toggled");
-    });
-
-    $("#DashboardLogout").on("click", function () {
+    $("#dashboard-logout").on("click", function () {
         input.logout();
     });
 
@@ -224,6 +213,22 @@ const NavPath = {
     }
 };
 
+const RootContentProgress = {
+    id: "dashboard-root-content-progress",
+    StartProgress: function () {
+        console.log("start progress");
+        $("#dashboard-root-content-progress")
+            .html('<div class="indeterminate"></div>')
+            .show();
+    },
+    StopProgress: function () {
+        console.log("stop progress");
+        $("#dashboard-root-content-progress")
+            .html('<div class="determinate" style="width: 0%"></div>')
+            .hide(2000);
+    }
+};
+
 const RootModal = {
     id: "root-modal",
     GetContentId: function () {
@@ -258,6 +263,7 @@ const RootModal = {
 const index = {
     Render,
     NavPath,
+    RootContentProgress,
     RootModal
 };
 export default index;

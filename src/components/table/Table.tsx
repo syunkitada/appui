@@ -1,3 +1,5 @@
+import "./Table.css";
+
 import data from "../../data";
 import locationData from "../../data/locationData";
 import service from "../../apps/service";
@@ -44,8 +46,8 @@ export function Render(input: any) {
       <div id="${toolBarId}">
       </div>
 
-      <div class="row" style="overflow-x:auto">
-        <table class="table">
+      <div class="row" style="overflow-x:auto; width:100%;">
+        <table class="table" style="padding: 0 5px;">
           <thead><tr id="${theadId}"></tr></thead>
           <tbody id="${tbodyId}"></tbody>
         </table>
@@ -228,7 +230,7 @@ export function Render(input: any) {
         }
 
         $(`#${toolBarId}`).html(`
-        <div class="row">
+        <div class="row" style="margin-bottom: 3px;">
           <div class="col m2">
             <div class="input-field">
               <input id="${searchInputId}" placeholder="Search" type="text" autocomplete="off">
@@ -241,7 +243,7 @@ export function Render(input: any) {
           </div>
           <div id="${pagenationId}" class="col m6 pagenation-wrapper right"></div>
         </div>
-        <div class="row">
+        <div class="row" style="margin-bottom: 5px;">
           <div class="col m4">
             <div id="${exButtonsId}"></div>
           </div>
@@ -554,16 +556,11 @@ export function Render(input: any) {
     }
 
     function renderPagenation() {
-        const rowsPerPageOptionsHtmls = [];
+        const val = `${fromIndex + 1}-${toIndex + 1} of ${tmpTableDataLen}`;
+        const rowsPerPageOptionsData: any = {};
         for (let i = 0, len = rowsPerPageOptions.length; i < len; i++) {
             const option = rowsPerPageOptions[i];
-            let selected = "";
-            if (option === rowsPerPage) {
-                selected = "selected";
-            }
-            rowsPerPageOptionsHtmls.push(
-                `<option ${selected} value="${option}">${option}</option>`
-            );
+            rowsPerPageOptionsData[option] = null;
         }
 
         const pageHtmls = [];
@@ -574,7 +571,7 @@ export function Render(input: any) {
                 active = "active";
             }
             pageHtmls.push(
-                `<li class="waves-effect ${active}"><a class="${pagenationPageClass}" href="${i}">${i}</a></li>`
+                `<li class="waves-effect pagenation-page ${active}"><a class="${pagenationPageClass}" href="${i}">${i}</a></li>`
             );
         }
 
@@ -589,37 +586,59 @@ export function Render(input: any) {
         }
 
         $(`#${pagenationId}`).html(`
-        <div class="col m6">
-        <ul class="pagination right">
-          <li>
-            Rows per page:
-            <div class="input-field inline">
-             <select id="${pagenationRowsPerPageId}" class="browser-default">
-                ${rowsPerPageOptionsHtmls.join("")}
-             </select>
+        <div class="col m12 right-align">
+            <div style="display: inline-block;">
+              <div class="input-field col s12 autocomplete-wrapper">
+                <input type="text" id="select-page" class="autocomplete" autocomplete="off">
+                <label for="select-page">${rowsPerPage}</label>
+                <i class="material-icons">arrow_drop_down</i>
+                <span class="hint">Rows per page</span>
+              </div>
             </div>
-            ${fromIndex + 1}-${toIndex + 1} of ${tmpTableDataLen}
-          </li>
-        </ul>
-        </div>
-        <div class="col m6">
-        <ul class="pagination right">
-          <li class="waves-effect ${disabledLeft}"><a class="${pagenationPageClass}" href="first"><i class="material-icons">first_page</i></a></li>
-          <li class="waves-effect ${disabledLeft}"><a class="${pagenationPageClass}" href="prev"><i class="material-icons">chevron_left</i></a></li>
-          ${pageHtmls.join("")}
-          <li class="waves-effect ${disabledRight}"><a class="${pagenationPageClass}" href="next"><i class="material-icons">chevron_right</i></a></li>
-          <li class="waves-effect ${disabledRight}"><a class="${pagenationPageClass}" href="last"><i class="material-icons">last_page</i></a></li>
-        </ul>
+            <div style="display: inline-block;">
+                <div class="input-field col s12">
+                    <input disabled value="${val}" id="disabled" type="text" class="validate">
+                    <label class="active" for="disabled">Rows</label>
+                </div>
+            </div>
+            <ul class="pagination right" style="display: inline-block;">
+              <li class="waves-effect ${disabledLeft}"><a class="${pagenationPageClass}" href="first"><i class="material-icons">first_page</i></a></li>
+              <li class="waves-effect ${disabledLeft}"><a class="${pagenationPageClass}" href="prev"><i class="material-icons">chevron_left</i></a></li>
+              ${pageHtmls.join("")}
+              <li class="waves-effect ${disabledRight}"><a class="${pagenationPageClass}" href="next"><i class="material-icons">chevron_right</i></a></li>
+              <li class="waves-effect ${disabledRight}"><a class="${pagenationPageClass}" href="last"><i class="material-icons">last_page</i></a></li>
+            </ul>
         </div>
         `);
 
-        $(`#${pagenationRowsPerPageId}`)
-            .off("change")
-            .on("change", function () {
+        $(`#${pagenationRowsPerPageId}`).formSelect();
+        $("#debugtexta").text("bbb");
+
+        $(`#select-page`)
+            .autocomplete({
+                data: rowsPerPageOptionsData,
+                minLength: 0
+            })
+            .on("change", function (e: any) {
                 const val = $(this).val();
                 if (typeof val === "string") {
                     rowsPerPage = parseInt(val);
                     render();
+                }
+            });
+
+        $(`#${pagenationRowsPerPageId}`)
+            .off("change")
+            .on("change", function (e: any) {
+                const val = $(this).val();
+                $("#debugtexta").text("ccccc");
+                if (typeof val === "string") {
+                    console.log("DEBUG test1");
+                    $("#debugtexta").text("testhoge");
+                    rowsPerPage = parseInt(val);
+                    render();
+                } else {
+                    console.log("DEBUG test2");
                 }
             });
 
