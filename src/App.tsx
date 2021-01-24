@@ -1,5 +1,4 @@
 import React from "react";
-import "./App.css";
 
 import auth from "./apps/auth";
 import service from "./apps/service";

@@ -22,7 +22,7 @@ th {
     width: 1px;
 }
 
-.pagenation-wrapper select {
+.table-pagenation-wrapper select {
     height: 35px;
 }
 
@@ -35,11 +35,11 @@ th {
     cursor: pointer;
 }
 
-.pagination li a {
+.table-pagenation li a {
     padding: 0 0 0 5px;
 }
 
-.pagenation-page {
+.table-pagenation-page {
     padding: 0 7px;
 }
 

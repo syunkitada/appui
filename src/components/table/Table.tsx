@@ -241,7 +241,7 @@ export function Render(input: any) {
               <div id="${actionButtonsId}" class="table-action-buttons right"></div>
             </div>
           </div>
-          <div id="${pagenationId}" class="col m6 pagenation-wrapper right"></div>
+          <div id="${pagenationId}" class="col m6 table-pagenation-wrapper right"></div>
         </div>
         <div class="row" style="margin-bottom: 5px;">
           <div class="col m4">
@@ -571,7 +571,7 @@ export function Render(input: any) {
                 active = "active";
             }
             pageHtmls.push(
-                `<li class="waves-effect pagenation-page ${active}"><a class="${pagenationPageClass}" href="${i}">${i}</a></li>`
+                `<li class="waves-effect table-pagenation-page ${active}"><a class="${pagenationPageClass}" href="${i}">${i}</a></li>`
             );
         }
 
@@ -601,7 +601,7 @@ export function Render(input: any) {
                     <label class="active" for="disabled">Rows</label>
                 </div>
             </div>
-            <ul class="pagination right" style="display: inline-block;">
+            <ul class="pagination right table-pagenation" style="display: inline-block;">
               <li class="waves-effect ${disabledLeft}"><a class="${pagenationPageClass}" href="first"><i class="material-icons">first_page</i></a></li>
               <li class="waves-effect ${disabledLeft}"><a class="${pagenationPageClass}" href="prev"><i class="material-icons">chevron_left</i></a></li>
               ${pageHtmls.join("")}

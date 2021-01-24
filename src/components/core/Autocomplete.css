@@ -1,0 +1,22 @@
+.autocomplete-wrapper {
+    padding: 0px 45px 0px 8px;
+}
+
+.autocomplete-wrapper label {
+    color: #212121;
+}
+
+.autocomplete-wrapper .hint {
+    position: absolute;
+    right: 8px;
+    font-size: 12px;
+    top: -15px;
+    color: #616161;
+}
+
+.autocomplete-wrapper i {
+    position: absolute;
+    right: 8px;
+    top: 12px;
+    color: #616161;
+}
