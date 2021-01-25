@@ -1,6 +1,7 @@
 import "./Autocomplete.css";
 import "./Dashboard.css";
 
+import provider from "../../provider";
 import service from "../../apps/service";
 import data from "../../data";
 import locationData from "../../data/locationData";
@@ -61,42 +62,51 @@ function renderServices(input: any) {
 
     $(`#${id}`).html(servicesHtmls.join(""));
 
-    $(`#${inputProjectId}`).autocomplete({
-        data: tmpProjectMap,
-        minLength: 0
-    });
+    $(`#${inputProjectId}`)
+        .autocomplete({
+            data: tmpProjectMap,
+            minLength: 0
+        })
+        .on("change", function (e: any) {
+            const projectName = $(this).val();
+            if (projectName) {
+                const serviceName = provider.getDefaultProjectServiceName();
+                onClickService({ projectName, serviceName });
+
+                renderServices(
+                    Object.assign({}, input, { projectName, serviceName })
+                );
+            }
+        });
 
     $(`.${keyPrefix}-Service`).on("click", function (e) {
         $("#dashboard-sidebar-wrapper").removeClass("toggled");
         const serviceName = $(this).text();
-        onClickService({
-            projectName: projectName,
-            serviceName: serviceName
-        });
-
-        renderServices(Object.assign({}, input, { projectName, serviceName }));
-    });
-
-    $(`.${keyPrefix}-Project`).on("click", function (e) {
-        const projectName = $(this).text();
-        const serviceName = "HomeProject";
-        onClickService({
-            projectName,
-            serviceName
-        });
+        onClickService({ projectName, serviceName });
 
         renderServices(Object.assign({}, input, { projectName, serviceName }));
     });
 }
 
 function Render(input: any) {
-    const { id } = input;
+    const { id, onClickService } = input;
     const { Name } = data.auth.Authority;
 
     const { serviceName, projectName } = locationData.getServiceParams();
 
     const keyPrefix = `${input.id}-Dashboard-`;
     const servicesId = `${keyPrefix}Services`;
+
+    const logo = provider.getLogo();
+    let logoHtml = "";
+    switch (logo.Kind) {
+        case "Text":
+            logoHtml = logo.Name;
+            break;
+        default:
+            logoHtml = "Unknown";
+            break;
+    }
 
     $(`#${id}`).html(`
     <ul id="dashboard-dropdown" class="dropdown-content">
@@ -106,9 +116,9 @@ function Render(input: any) {
     <nav id="dashboard-nav-header">
       <div class="nav-wrapper">
         <ul class="left">
-          <a href="#!" id="dashboard-menu-toggle"><i class="material-icons">menu</i></a>
+          <li><a href="#!" id="dashboard-menu-toggle"><i class="material-icons">menu</i></a></li>
+          <li><a href="#!" id="dashboard-nav-logo">${logoHtml}</a></li>
         </ul>
-        <a href="#!" id="dashboard-nav-logo">Home</a>
 
         <div id="dashboard-nav-breadcrumb" class="nav-wrapper">
           <div id="dashboard-nav-path" class="col s12">
@@ -158,6 +168,15 @@ function Render(input: any) {
             projectName
         })
     );
+
+    $("#dashboard-nav-logo").on("click", function (e) {
+        const serviceName = provider.getDefaultServiceName();
+        onClickService({ serviceName });
+
+        renderServices(
+            Object.assign({}, input, { id: servicesId, serviceName })
+        );
+    });
 
     $(".dropdown-trigger").dropdown();
 

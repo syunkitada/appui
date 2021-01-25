@@ -20,10 +20,9 @@ function loginWithToken() {
 }
 
 function login(input: any) {
-    const { userName, password } = input;
+    const { params } = input;
     provider.login({
-        userName,
-        password,
+        params,
         onSuccess: function (input: any) {
             logger.info("login.onSuccess", input);
             service.init();

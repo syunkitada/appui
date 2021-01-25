@@ -39,6 +39,10 @@ class Provider implements IProvider {
         return {};
     }
 
+    getInitData(input: any): any {
+        return {};
+    }
+
     loginWithToken(input: any): void {
         const serviceName = "Auth";
         const queries = [

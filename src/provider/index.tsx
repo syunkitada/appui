@@ -3,13 +3,27 @@ import { IProvider } from "./IProvider";
 
 class Provider {
     provider: IProvider = new goapp.Provider();
+    data: any;
 
     register(provider: IProvider): void {
         this.provider = provider;
+        this.data = provider.getInitData({});
+    }
+
+    getDefaultServiceName(): any {
+        return this.data.DefaultServiceName;
+    }
+
+    getDefaultProjectServiceName(): any {
+        return this.data.DefaultProjectServiceName;
+    }
+
+    getLogo(): any {
+        return this.data.Logo;
     }
 
     getLoginView(input: any): any {
-        return this.provider.getLoginView(input);
+        return this.data.LoginView;
     }
 
     loginWithToken(input: any): void {

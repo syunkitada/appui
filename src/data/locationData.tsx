@@ -1,3 +1,4 @@
+import provider from "../provider";
 import logger from "../lib/logger";
 
 const locationDataKey = "d";
@@ -26,7 +27,7 @@ function getServiceParams() {
     const splitedPath = window.location.pathname.split("/");
     if (splitedPath.length < 3) {
         return {
-            serviceName: "Home"
+            serviceName: provider.getDefaultServiceName()
         };
     }
 
@@ -39,7 +40,7 @@ function getServiceParams() {
             if (splitedPath.length < 4) {
                 return {
                     projectName: splitedPath[2],
-                    serviceName: "Home"
+                    serviceName: provider.getDefaultProjectServiceName()
                 };
             }
             return {
@@ -48,7 +49,7 @@ function getServiceParams() {
             };
     }
     return {
-        serviceName: "Home"
+        serviceName: provider.getDefaultServiceName()
     };
 }
 
