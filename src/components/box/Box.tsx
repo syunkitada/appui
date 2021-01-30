@@ -85,7 +85,7 @@ export function Render(input: any) {
                                 break;
                             case "Table":
                                 cards.push(`
-                                    <div class="col m6">
+                                    <div class="col m6" style="padding: 0 20px;">
                                       <h5>${card.Name}</h5>
                                       <div id="${keyPrefix}${card.Name}"></div>
                                     </div>
@@ -205,7 +205,9 @@ export function Render(input: any) {
                     );
             }
         }
-        $(`#${panelsId}`).html(panelsGroups.join(""));
+        $(`#${panelsId}`).html(
+            `<div class="box">${panelsGroups.join("")}</div>`
+        );
 
         for (let i = 0, len = renderHandlers.length; i < len; i++) {
             const handler = renderHandlers[i];

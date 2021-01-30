@@ -4,6 +4,10 @@ th {
     max-width: 300px;
 }
 
+.table-wrapper td i.left {
+    margin-right: 0px;
+}
+
 .table-wrapper .table-time {
     min-width: 200px;
 }

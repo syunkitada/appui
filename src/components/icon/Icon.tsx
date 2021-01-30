@@ -9,6 +9,8 @@ function Html(input: any): string {
             return `<i class="material-icons left">bookmark_border</i>`;
         case "Check":
             return `<i class="material-icons left">check_circle</i>`;
+        case "Critical":
+            return `<i class="material-icons left">highlight_off</i>`;
         case "Uncheck":
             return `<i class="material-icons left">check_circle_outline</i>`;
         case "Create":
@@ -23,6 +25,12 @@ function Html(input: any): string {
             return `<i class="material-icons left">edit</i>`;
         case "Save":
             return `<i class="material-icons left">save</i>`;
+        case "Success":
+            return `<i class="material-icons left">check_circle_outline</i>`;
+        case "Warning":
+            return `<i class="material-icons left">info_outline</i>`;
+        case "Unknown":
+            return `<i class="material-icons left">help_outline</i>`;
         default:
             return `<span>Unknown: ${kind}</span>`;
     }

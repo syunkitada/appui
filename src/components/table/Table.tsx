@@ -6,6 +6,7 @@ import service from "../../apps/service";
 import Icon from "../icon/Icon";
 import Form from "../form/Form";
 import color from "../../lib/color";
+import logger from "../../lib/logger";
 
 export function Render(input: any) {
     const { id, View } = input;
@@ -63,9 +64,17 @@ export function Render(input: any) {
 
     const filterColumns: any[] = [];
 
-    const rowsPerPageOptions = View.RowsPerPageOptions;
+    let rowsPerPageOptions = View.RowsPerPageOptions;
+    if (!rowsPerPageOptions) {
+        logger.warning("Table", "View.RowsPerPageOptions is undefined", View);
+        rowsPerPageOptions = [10, 20, 30];
+    }
     let page = 1;
     let rowsPerPage = View.RowsPerPage;
+    if (!rowsPerPage) {
+        logger.warning("Table", "View.RowsPerPage is undefined", View);
+        rowsPerPage = 10;
+    }
     let filteredTableData = tableData;
     let fromIndex = 0;
     let toIndex = rowsPerPage;
@@ -93,12 +102,12 @@ export function Render(input: any) {
         }
         switch (column.Kind) {
             case "Time":
-                thHtmls.push(`<th class="${alignClass}">${column.Name}</th>`);
-                break;
-            default:
                 thHtmls.push(
                     `<th class="${alignClass} table-time">${column.Name}</th>`
                 );
+                break;
+            default:
+                thHtmls.push(`<th class="${alignClass}">${column.Name}</th>`);
                 break;
         }
 
@@ -425,6 +434,7 @@ export function Render(input: any) {
                     columnData = rdata[column.Name];
                 }
                 if (column.FilterValues) {
+                    alignClass = "right";
                     let filterButton: any = null;
                     const currentValue = filterMap[column.Name];
                     let isShowCells = true;
@@ -446,13 +456,21 @@ export function Render(input: any) {
                             }
 
                             filterButton = `
-                            <a class="${filterValue._colorClass}">${Icon.Html({
+                            <a class="icon ${
+                                filterValue._colorClass
+                            }">${Icon.Html({
                                 kind: filterValue.Icon
                             })}</a>`;
                         }
                     }
                     if (!isShowCells) {
                         continue;
+                    }
+                    if (!filterButton) {
+                        filterButton = `
+                        <a class="grey-text text-grey">${Icon.Html({
+                            kind: "Unknown"
+                        })}</a>`;
                     }
                     tdHtmls.push(
                         `<td class="${alignClass}" id="${keyPrefix}${i}-${j}">${filterButton}</td>`
@@ -532,15 +550,12 @@ export function Render(input: any) {
                     const splitedId = id.split("-");
                     const column = columns[splitedId[splitedId.length - 1]];
                     const rdata = tableData[splitedId[splitedId.length - 2]];
-                    const params = Object.assign({}, location.Params);
-                    if (column.LinkKeys) {
-                        for (
-                            let i = 0, len = column.LinkKeys.length;
-                            i < len;
-                            i++
-                        ) {
-                            params[column.LinkKeys[i]] =
-                                rdata[column.LinkKeys[i]];
+                    const params: any = Object.assign({}, location.Params);
+                    if (column.LinkKeyMap) {
+                        for (const [key, value] of Object.entries(
+                            column.LinkKeyMap
+                        )) {
+                            params[key] = rdata[String(value)];
                         }
                     } else {
                         params[column.Name] = rdata[column.Name];
@@ -612,7 +627,6 @@ export function Render(input: any) {
         `);
 
         $(`#${pagenationRowsPerPageId}`).formSelect();
-        $("#debugtexta").text("bbb");
 
         $(`#select-page`)
             .autocomplete({
@@ -631,14 +645,9 @@ export function Render(input: any) {
             .off("change")
             .on("change", function (e: any) {
                 const val = $(this).val();
-                $("#debugtexta").text("ccccc");
                 if (typeof val === "string") {
-                    console.log("DEBUG test1");
-                    $("#debugtexta").text("testhoge");
                     rowsPerPage = parseInt(val);
                     render();
-                } else {
-                    console.log("DEBUG test2");
                 }
             });
 
