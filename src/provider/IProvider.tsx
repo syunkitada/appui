@@ -3,7 +3,6 @@ export interface IProvider {
     login(input: any): void;
     logout(input: any): void;
     getInitData(input: any): any;
-    getLoginView(input: any): any;
     getServiceIndex(input: any): void;
     getQueries(input: any): void;
     submitQueries(input: any): void;
