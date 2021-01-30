@@ -66,7 +66,7 @@ export function Render(input: any) {
     }
 
     $(`#${id}`).html(`
-    <div class="row">
+    <div class="row" style="padding: 0 5px">
       ${title}
       <div class="col s12">
         <ul id="${prefixKey}tabs" class="tabs">

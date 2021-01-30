@@ -46,8 +46,8 @@ export function Render(input: any) {
       <div id="${toolBarId}">
       </div>
 
-      <div class="row" style="overflow-x:auto; width:100%;">
-        <table class="table" style="padding: 0 5px;">
+      <div class="row" style="overflow-x:auto; padding: 0 5px;">
+        <table class="table" style="width:100%;">
           <thead><tr id="${theadId}"></tr></thead>
           <tbody id="${tbodyId}"></tbody>
         </table>
