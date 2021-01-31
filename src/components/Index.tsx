@@ -5,6 +5,7 @@ import Panels from "./panels/Panels";
 import Table from "./table/Table";
 import Title from "./core/Title";
 import Box from "./box/Box";
+import Console from "./console/Console";
 import Notfound from "./core/Notfound";
 import logger from "../lib/logger";
 
@@ -13,6 +14,8 @@ function Render(input: any) {
     logger.info("Index.Render", input);
 
     switch (View.Kind) {
+        case "Console":
+            return Console.Render(input);
         case "Title":
             return Title.Render(input);
         case "Tabs":

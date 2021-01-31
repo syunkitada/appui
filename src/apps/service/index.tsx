@@ -1,3 +1,4 @@
+import Toast from "../../components/toast/Toast";
 import Dashboard from "../../components/core/Dashboard";
 import auth from "../../apps/auth";
 import provider from "../../provider";
@@ -24,9 +25,16 @@ function init() {
         }
 
         data.service = {
-            data: input.Data,
-            rootView: input.Index.View
+            rootView: input.index.View,
+            data: input.data,
+            websocketMap: {}
         };
+
+        const nextView = getViewFromPath(input.index.View, location.Path);
+        if (nextView.WebSocketKey && input.websocket) {
+            data.service.websocketMap[location.Path.join(".")] =
+                input.websocket;
+        }
 
         Dashboard.NavPath.Render({
             location
@@ -34,7 +42,7 @@ function init() {
 
         Index.Render({
             id: "root-content",
-            View: input.Index.View
+            View: input.index.View
         });
 
         Dashboard.RootContentProgress.StopProgress();
@@ -58,6 +66,7 @@ function init() {
                 onSuccess: getServiceIndexOnSuccess,
                 onError: function (input: any) {
                     logger.error("service.init.onClickService.onError", input);
+                    Toast.Error(input);
                 }
             });
         }
@@ -71,6 +80,7 @@ function init() {
         onSuccess: getServiceIndexOnSuccess,
         onError: function (input: any) {
             logger.error("service.init.getServiceIndex.onError", input);
+            Toast.Error(input);
         }
     });
 }
@@ -94,6 +104,11 @@ function getQueries(input: any) {
     const { serviceName, projectName } = locationData.getServiceParams();
     const nextView = getViewFromPath(data.service.rootView, location.Path);
 
+    if (nextView.WebSocketQuery) {
+        location.WebSocketQuery = nextView.WebSocketQuery;
+    } else {
+        location.WebSocketQuery = null;
+    }
     location.DataQueries = nextView.DataQueries;
     if (view && view.View.ViewParams) {
         location.ViewParams = view.View.ViewParams;
@@ -110,10 +125,23 @@ function getQueries(input: any) {
         serviceName,
         projectName,
         location,
-        onSuccess: function (input: any) {
+        onSuccess: function (_input: any) {
             Dashboard.RootContentProgress.StopProgress();
 
-            data.service.data = Object.assign(data.service.data, input.data);
+            data.service.data = Object.assign(data.service.data, _input.data);
+
+            const pathKey = location.Path.join(".");
+            if (nextView.WebSocketKey && _input.websocket) {
+                data.service.websocketMap[pathKey] = _input.websocket;
+            }
+            for (const [key, value] of Object.entries(
+                data.service.websocketMap
+            )) {
+                if (key !== pathKey) {
+                    data.service.websocketMap[key].close();
+                    delete data.service.websocketMap[key];
+                }
+            }
 
             Dashboard.NavPath.Render({
                 location
@@ -127,10 +155,11 @@ function getQueries(input: any) {
                     View: data.service.rootView
                 });
             }
-            logger.info("getQueries.onSuccess", input);
+            logger.info("getQueries.onSuccess", _input);
         },
-        onError: function (input: any) {
-            logger.error("getQueries.onError", input);
+        onError: function (_input: any) {
+            logger.error("getQueries.onError", _input);
+            Toast.Error(_input);
         }
     });
 }
@@ -157,6 +186,7 @@ function submitQueries(input: any) {
         },
         onError: function (_input: any) {
             logger.error("submitQueries.onError", input, _input);
+            Toast.Error(input);
         }
     });
 }

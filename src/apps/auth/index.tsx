@@ -1,3 +1,4 @@
+import Toast from "../../components/toast/Toast";
 import Login from "../../components/login/Login";
 import Loading from "../../components/login/Loading";
 import service from "../service";
@@ -15,6 +16,7 @@ function loginWithToken() {
         onError: function (input: any) {
             logger.error("loginWithToken.onError", input);
             renderLoginView();
+            Toast.Error(input);
         }
     });
 }
@@ -30,6 +32,7 @@ function login(input: any) {
         onError: function (input: any) {
             logger.error("login.onError", input);
             renderLoginView();
+            Toast.Error(input);
         }
     });
 }
@@ -42,6 +45,7 @@ function logout() {
         },
         onError: function (input: any) {
             logger.error("logout.onError", input);
+            Toast.Error(input);
         }
     });
 }

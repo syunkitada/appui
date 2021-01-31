@@ -1,5 +1,6 @@
 import "./Table.css";
 
+import Toast from "../toast/Toast";
 import data from "../../data";
 import locationData from "../../data/locationData";
 import service from "../../apps/service";
@@ -162,7 +163,7 @@ export function Render(input: any) {
                     View: action,
                     onSuccess: function () {
                         Render(input);
-                        M.toast({ html: "Success" });
+                        Toast.Success({ msg: "Success" });
                     }
                 });
             });
@@ -203,7 +204,7 @@ export function Render(input: any) {
                     View: action,
                     onSuccess: function () {
                         Render(input);
-                        M.toast({ html: "Success" });
+                        Toast.Success({ msg: "Success" });
                     }
                 });
             });
