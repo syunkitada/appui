@@ -1,10 +1,14 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import App from "./App";
+import auth from "./apps/auth";
+import service from "./apps/service";
+import provider from "./provider";
+import mock from "./provider/mock";
 
-ReactDOM.render(
-    <React.StrictMode>
-        <App />
-    </React.StrictMode>,
-    document.getElementById("root")
-);
+$(function () {
+    provider.register(new mock.Provider());
+
+    if ("auth" in window) {
+        service.init();
+    } else {
+        auth.init();
+    }
+});

@@ -1,8 +1,8 @@
-import goapp from "./goapp";
+import mock from "./mock";
 import { IProvider } from "./IProvider";
 
 class Provider {
-    provider: IProvider = new goapp.Provider();
+    provider: IProvider = new mock.Provider();
     data: any;
 
     register(provider: IProvider): void {
