@@ -19,18 +19,19 @@ function init() {
     }
 
     function getServiceIndexOnSuccess(input: any) {
-        if (initLocation && input.Index.DefaultRoute.Path) {
-            location.Path = input.Index.DefaultRoute.Path;
+        const { index } = input;
+        if (initLocation && index.DefaultRoute.Path) {
+            location.Path = index.DefaultRoute.Path;
             locationData.setLocationData(location);
         }
 
         data.service = {
-            rootView: input.index.View,
+            rootView: index.View,
             data: input.data,
             websocketMap: {}
         };
 
-        const nextView = getViewFromPath(input.index.View, location.Path);
+        const nextView = getViewFromPath(index.View, location.Path);
         if (nextView.WebSocketKey && input.websocket) {
             data.service.websocketMap[location.Path.join(".")] =
                 input.websocket;
@@ -42,7 +43,7 @@ function init() {
 
         Index.Render({
             id: "root-content",
-            View: input.index.View
+            View: index.View
         });
 
         Dashboard.RootContentProgress.StopProgress();

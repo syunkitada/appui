@@ -435,7 +435,6 @@ export function Render(input: any) {
                     columnData = rdata[column.Name];
                 }
                 if (column.FilterValues) {
-                    alignClass = "right";
                     let filterButton: any = null;
                     const currentValue = filterMap[column.Name];
                     let isShowCells = true;
