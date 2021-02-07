@@ -62,13 +62,20 @@ class Provider implements IProvider {
 
     getServiceIndex(input: any): void {
         const { serviceName, location, onSuccess, onError } = input;
-        const data = {
-            Notes: []
-        };
-        onSuccess({
-            data: data,
-            index: service_index.getServiceIndex(serviceName)
-        });
+
+        setTimeout(function () {
+            const data = {
+                Notes: [
+                    { Id: 1, Name: "test1" },
+                    { Id: 2, Name: "test2" },
+                    { Id: 3, Name: "test3" }
+                ]
+            };
+            onSuccess({
+                data: data,
+                index: service_index.getServiceIndex(serviceName)
+            });
+        }, 1000);
     }
 
     getQueries(input: any): void {
@@ -84,6 +91,8 @@ class Provider implements IProvider {
         onSuccess({ data: data });
     }
 }
+
+console.log("DEBUG hoge");
 
 const index = {
     Provider
