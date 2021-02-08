@@ -1,9 +1,9 @@
 import locationData from "../../data/locationData";
 
-const regex = /[/ :=,]/gi;
+const regex = /[/ :=,]/g;
 function escapeKey(str: string): string {
-    str = str.replaceAll(regex, "-");
-    return str;
+    const result = str.replace(regex, "-");
+    return result;
 }
 
 function formatText(str: string): string {
