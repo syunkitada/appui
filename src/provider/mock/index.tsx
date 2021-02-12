@@ -2,6 +2,8 @@ import data from "../../data";
 import { IProvider } from "../IProvider";
 
 import service_index from "./service_index";
+import home_service from "./home_service";
+import note_service from "./note_service";
 
 const TextUnmarkedCheck = 0;
 const TextMarkedCheck = 1;
@@ -43,7 +45,8 @@ class Provider implements IProvider {
                 Name: "hoge",
                 ServiceMap: {
                     Home: {},
-                    Settings: {}
+                    Note: {},
+                    Graph: {}
                 }
             }
         };
@@ -62,13 +65,18 @@ class Provider implements IProvider {
 
     getServiceIndex(input: any): void {
         const { serviceName, location, onSuccess, onError } = input;
-        const data = {
-            Notes: []
-        };
-        onSuccess({
-            data: data,
-            index: service_index.getServiceIndex(serviceName)
-        });
+
+        switch (serviceName) {
+            case "Home":
+                home_service.getServiceIndex(input);
+                break;
+            case "Note":
+                note_service.getServiceIndex(input);
+                break;
+            case "Graph":
+                note_service.getServiceIndex(input);
+                break;
+        }
     }
 
     getQueries(input: any): void {
@@ -84,6 +92,8 @@ class Provider implements IProvider {
         onSuccess({ data: data });
     }
 }
+
+console.log("DEBUG hoge");
 
 const index = {
     Provider

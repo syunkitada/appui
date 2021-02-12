@@ -3,9 +3,7 @@ interface Data {
     service: any;
 }
 
-declare var data: Data;
-
-data = {
+const data: Data = {
     auth: {},
     service: {}
 };

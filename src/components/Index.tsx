@@ -4,6 +4,7 @@ import Tabs from "./tabs/Tabs";
 import Panels from "./panels/Panels";
 import Table from "./table/Table";
 import Title from "./core/Title";
+import Text from "./text/Text";
 import Box from "./box/Box";
 import Console from "./console/Console";
 import Notfound from "./core/Notfound";
@@ -28,6 +29,8 @@ function Render(input: any) {
             return Panels.Render(input);
         case "Table":
             return Table.Render(input);
+        case "Text":
+            return Text.Render(input);
         case "View":
             return Box.Render(input);
         case "Box":
