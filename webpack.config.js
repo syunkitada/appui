@@ -44,6 +44,7 @@ module.exports = {
   devServer: {
     host: "0.0.0.0",
     port: "3000",
-    contentBase: "public"
+    contentBase: "public",
+    historyApiFallback: true // history APIが404エラーを返す時、index.htmlに遷移(ブラウザリロード時など)
   }
 };
