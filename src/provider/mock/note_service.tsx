@@ -1,3 +1,7 @@
+import utils from "./utils";
+
+const localStorage = window.localStorage;
+
 function getEditAction(action: any, dataKey: any) {
     return {
         Action: action,
@@ -63,20 +67,7 @@ function deleteTextsAction(action: any, dataKey: any) {
 }
 
 function getServiceIndex(input: any) {
-    const { onSuccess } = input;
-    setTimeout(function () {
-        const data = {
-            Notes: [
-                { Id: 1, Name: "test1" },
-                { Id: 2, Name: "test2" },
-                { Id: 3, Name: "test3" }
-            ]
-        };
-        onSuccess({
-            data: data,
-            index: getIndex()
-        });
-    }, 1000);
+    return getIndex();
 }
 
 function getIndex() {
@@ -168,111 +159,8 @@ function getIndex() {
         Kind: "Tabs",
         Title: "Note: #{Params.Name}",
         Name: "Note",
-        SubName: "Id",
-        TabParam: "Kind",
-        Children: [
-            {
-                // StudyingTab
-                Actions: [
-                    createTextsAction,
-                    getEditAction("UpdateStudyingTexts", "StudyingTexts"),
-                    setNoteAction
-                ],
-                Columns: textsColumns,
-                DataQueries: ["GetNote"],
-                DataKey: "StudyingTexts",
-                DisablePaging: false,
-                FixHeight: false,
-                Kind: "Table",
-                Name: "Studying",
-                Route: "/Studying",
-                RowsPerPage: 100,
-                RowsPerPageOptions: [100, 200, 300],
-                SelectActions: [
-                    checkTextsAction("CheckStudyingTexts", "StudyingTexts"),
-                    uncheckTextsAction("UncheckStudyingTexts", "StudyingTexts"),
-                    {
-                        Action: "MarkLearningTexts",
-                        DataKey: "StudyingTexts",
-                        Icon: "Bookmarks",
-                        Kind: "Form",
-                        Name: "Move To Learning Texts",
-                        SelectKey: "t",
-                        SubmitButtonName: "Move"
-                    },
-                    deleteTextsAction("DeleteStudyingTexts", "StudyingTexts")
-                ]
-            },
-            {
-                // LearningTab
-                Actions: [
-                    getEditAction("UpdateLearningTexts", "LearningTexts"),
-                    setNoteAction
-                ],
-                Columns: textsColumns,
-                DataQueries: ["GetNote"],
-                DataKey: "LearningTexts",
-                DisablePaging: false,
-                Kind: "Table",
-                Name: "Learning",
-                Route: "/Learning",
-                RowsPerPage: 100,
-                RowsPerPageOptions: [100, 200, 300],
-                SelectActions: [
-                    checkTextsAction("CheckLearningTexts", "LearningTexts"),
-                    uncheckTextsAction("UncheckLearningTexts", "LearningTexts"),
-                    {
-                        Action: "MarkStudyingTexts",
-                        DataKey: "LearningTexts",
-                        Icon: "BookmarkBorder",
-                        Kind: "Form",
-                        Name: "Restore To Studying Texts",
-                        SelectKey: "t",
-                        SubmitButtonName: "Restore"
-                    },
-                    {
-                        Action: "MarkLearnedTexts",
-                        DataKey: "LearningTexts",
-                        Icon: "Bookmarks",
-                        Kind: "Form",
-                        Name: "Move To Learned Texts",
-                        SelectKey: "t",
-                        SubmitButtonName: "Move Next"
-                    },
-                    deleteTextsAction("DeleteLearningTexts", "LearningTexts")
-                ]
-            },
-            {
-                // LearnedTab
-                Actions: [
-                    getEditAction("UpdateLearnedTexts", "LearnedTexts"),
-                    setNoteAction
-                ],
-                Columns: textsColumns,
-                DataQueries: ["GetNote"],
-                DataKey: "LearnedTexts",
-                DisablePaging: false,
-                Kind: "Table",
-                Name: "Learned",
-                Route: "/Learned",
-                RowsPerPage: 100,
-                RowsPerPageOptions: [100, 200, 300],
-                SelectActions: [
-                    checkTextsAction("CheckLearnedTexts", "LearnedTexts"),
-                    uncheckTextsAction("UncheckLearnedTexts", "LearnedTexts"),
-                    {
-                        Action: "MarkLearningTextsFromLearnedTexts",
-                        DataKey: "LearnedTexts",
-                        Icon: "BookmarkBorder",
-                        Kind: "Form",
-                        Name: "Restore To Learning Texts",
-                        SelectKey: "t",
-                        SubmitButtonName: "Restore"
-                    },
-                    deleteTextsAction("DeleteLearnedTexts", "LearnedTexts")
-                ]
-            }
-        ]
+        DataQueries: ["GetNote"],
+        ViewDataKey: "Note"
     };
 
     const view = {
@@ -282,7 +170,6 @@ function getIndex() {
             {
                 Kind: "Pane",
                 Name: "Notes",
-                DataQueries: ["GetUser"],
                 Views: [
                     { Kind: "Title", Title: "Notes" },
                     {
@@ -293,7 +180,7 @@ function getIndex() {
                                 BaseUrl: "/Home",
                                 IsSearch: true,
                                 Key: "Name",
-                                LinkPath: ["Notes", "Note", "Studying"],
+                                LinkPath: ["Notes", "Note", "New", "New"],
                                 LinkKeyMap: {
                                     Id: "Id",
                                     Name: "Name"
@@ -328,28 +215,6 @@ function getIndex() {
     const index = {
         DefaultRoute: {
             Path: ["Notes"]
-        },
-        View: view
-    };
-
-    return index;
-}
-
-function getSettingsServiceIndex() {
-    const view = {
-        Name: "Root",
-        Kind: "Panes",
-        Children: [
-            {
-                Kind: "Pane",
-                Name: "Settings",
-                Views: [{ Kind: "Title", Title: "Settings" }]
-            }
-        ]
-    };
-    const index = {
-        DefaultRoute: {
-            Path: ["Settings"]
         },
         View: view
     };

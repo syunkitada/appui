@@ -1,3 +1,4 @@
+import Editor from "./editor/Editor";
 import Pane from "./pane/Pane";
 import Panes from "./panes/Panes";
 import Tabs from "./tabs/Tabs";
@@ -19,6 +20,8 @@ function Render(input: any) {
             return Console.Render(input);
         case "Title":
             return Title.Render(input);
+        case "Editor":
+            return Editor.Render(input);
         case "Tabs":
             return Tabs.Render(input);
         case "Pane":

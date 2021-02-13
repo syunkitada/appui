@@ -169,7 +169,7 @@ export function Render(input: any) {
     }
 
     $(`#${id}`).html(`
-    <h4>${View.Name}</h4>
+    <h1>${View.Name}</h1>
     <form class="col s12 form" id="${formId}">
       ${fields.join("")}
       <div id="${submitButtonWrapperId}"></div>

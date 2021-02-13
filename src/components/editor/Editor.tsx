@@ -1,5 +1,6 @@
-import "./Text.css";
+import "./Editor.css";
 
+import Text from "../text/Text";
 import MarkdownIt from "markdown-it";
 import Prism from "prismjs";
 import "prismjs/themes/prism-tomorrow.css";
@@ -14,7 +15,8 @@ import data from "../../data";
 
 export function Render(input: any) {
     const { id, View } = input;
-    const prefixKey = `${id}-`;
+    const prefixKey = `${id}-Editor-`;
+    const inputId = `${prefixKey}Input`;
     const textId = `${prefixKey}Text`;
 
     const md = new MarkdownIt({
@@ -48,14 +50,35 @@ export function Render(input: any) {
     }
 
     $(`#${id}`).html(`
-    <div class="row text" style="padding: 0 5px">
-      <div class="col s12" id="${textId}">
+    <div class="row">
+      <div class="col m6">
+        <div class="row">
+          <div class="input-field col s12">
+            <textarea id="${inputId}" class="materialize-textarea">${textData}</textarea>
+          </div>
+        </div>
+      </div>
+      <div class="col m6" id="${textId}">
       </div>
     </div>
     `);
 
-    $(`#${textId}`).html(md.render(textData));
-    Prism.highlightAll();
+    M.textareaAutoResize($(`#${inputId}`));
+
+    const textarea = $(`#${inputId}`);
+    if (!textarea) {
+        return;
+    }
+    function render() {
+        Text.Render({
+            id: textId,
+            textData: textarea.val(),
+            View: {}
+        });
+    }
+
+    $(`#${inputId}`).on("keyup", render).on("change", render);
+    render();
 }
 
 const index = {

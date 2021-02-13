@@ -117,7 +117,7 @@ function getQueries(input: any) {
         location.ViewParams = {};
     }
 
-    logger.info("service.getQueries", location, view);
+    logger.info("service.getQueries", location, view, nextView);
 
     locationData.setLocationData(location);
     Dashboard.RootContentProgress.StartProgress();

@@ -1,8 +1,7 @@
-type TSuccess = {
-    msg: any;
-};
-
-function Success(input: TSuccess) {
+function Success(input: any) {
+    if (!input || !input.msg) {
+        return;
+    }
     M.toast({
         html: input.msg,
         classes: "green lighten-1",
@@ -10,11 +9,10 @@ function Success(input: TSuccess) {
     });
 }
 
-type TError = {
-    error: any;
-};
-
-function Error(input: TError) {
+function Error(input: any) {
+    if (!input || !input.error) {
+        return;
+    }
     M.toast({
         html: input.error,
         classes: "red lighten-1",
