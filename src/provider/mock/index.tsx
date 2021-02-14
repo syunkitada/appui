@@ -160,7 +160,7 @@ class Provider implements IProvider {
                     const note = localData.NoteMap[id];
                     console.log("TODO GetNote", note);
                     newData.Note = {
-                        Actions: [{}],
+                        Actions: [{ Name: "AddTab" }],
                         Children: [
                             {
                                 Name: "New",
@@ -171,7 +171,7 @@ class Provider implements IProvider {
                         ]
                     };
                     newData.NoteTexts = {
-                        Actions: [{}],
+                        Actions: [{ Name: "AddTab" }],
                         Children: [
                             {
                                 Name: "New",

@@ -8,8 +8,10 @@ import converter from "../../lib/converter";
 
 export function Render(input: any) {
     const { id } = input;
-    const prefixKey = `${id}-`;
+    const prefixKey = `${id}-Tabs-`;
     let View = input.View;
+    const actionButtonClass = `${prefixKey}-actionButton`;
+    const tabsId = `${prefixKey}tabs`;
 
     const location = locationData.getLocationData();
     let indexPath;
@@ -50,6 +52,9 @@ export function Render(input: any) {
         tabs.push(`
         <li class="tab col s3"><a class="${activeClass}" href="#${tabId}">${tab.Name}</a></li>
         `);
+        tabs.push(`
+        <li class="tab col s3"><a class="" href="#">Dummy</a></li>
+        `);
         tabContents.push(`
         <div id="${tabId}" class="col s12"></div>
         `);
@@ -62,10 +67,18 @@ export function Render(input: any) {
 
     console.log("DEBUG Actions", View.Name, View.Actions);
     if (View.Actions && View.Actions.length > 0) {
+        const actions: any = [];
+        for (let i = 0, len = View.Actions.length; i < len; i++) {
+            actions.push(`
+              <a class="waves-effect waves-light btn-small ${actionButtonClass}" data-action-idx="${i}">
+                <i class="material-icons">add</i>
+              </a>
+            `);
+        }
         tabs.push(`
         <li class="tab-buttons">
-        <a class="waves-effect waves-light btn-small">
-        <i class="material-icons">add</i></a></li>
+            ${actions}
+        </li>
         `);
     }
 
@@ -73,7 +86,7 @@ export function Render(input: any) {
     <div class="row" style="padding: 0 5px">
       ${title}
       <div class="col s12">
-        <ul id="${prefixKey}tabs" class="tabs">
+        <ul id="${tabsId}" class="tabs">
           ${tabs.join("")}
         </ul>
       </div>
@@ -81,7 +94,52 @@ export function Render(input: any) {
     </div>
     `);
 
-    $(`#${prefixKey}tabs`).tabs({
+    let target: any = null;
+    let dummy: any = null;
+    $(".tab").on("mousedown", function () {
+        target = $(this);
+        dummy = $(`<li class="tab col s3">${target.html()}</a></li>`);
+        $(`#${tabsId}`).append(dummy);
+        dummy.css({
+            position: "absolute",
+            "z-index": 50,
+            border: "1px solid black"
+        });
+        console.log("DEBUG mousedown", $(this));
+    });
+
+    $("#root")
+        .on("mouseup", function () {
+            if (target) {
+                target.css("position", "static");
+                target = null;
+            }
+            // if (dummy) {
+            //     dummy.remove();
+            //     dummy = null;
+            // }
+            console.log("DEBUG mouseup", $(this));
+        })
+        .on("mousemove", function (e: any) {
+            e.preventDefault();
+            if (dummy && target) {
+                const position = target.position();
+                dummy.css({ top: position.top, left: e.clientX });
+                console.log("DEBUG mousemove", e.clientX, e.clientY);
+                console.log("target position", target.position());
+            }
+        });
+
+    $(`.${actionButtonClass}`).on("click", function () {
+        const dataActionIdx = $(this).attr("data-action-idx");
+        if (!dataActionIdx) {
+            return;
+        }
+        const action = View.Actions[parseInt(dataActionIdx)];
+        console.log(action);
+    });
+
+    $(`#${tabsId}`).tabs({
         onShow: function (content: any) {
             const splitedId = content.id.split("-");
             const tab = View.Children[splitedId[splitedId.length - 1]];
