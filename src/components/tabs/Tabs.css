@@ -1,3 +1,65 @@
+.appui-tabs {
+    margin-top: 5px;
+    height: 42px;
+    padding: 0px;
+    border-bottom: 1px solid rgba(246, 178, 181, 0.9);
+}
+
+.appui-tab {
+    display: inline-block;
+    border: 1px solid rgba(246, 178, 181, 0.9);
+}
+
+.appui-tab.dragged {
+    border: 1px solid rgba(246, 178, 181, 1);
+}
+
+.appui-tab.active {
+    background-color: rgba(246, 178, 181, 0.1);
+    border-bottom: 1px solid #fff;
+}
+
+.tab-name {
+    color: rgba(238, 110, 115, 0.7);
+}
+
+.appui-tab.active .tab-name {
+    color: #ee6e73;
+}
+
+.tab-name {
+    float: left;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 2px 16px;
+    line-height: 36px;
+}
+
+.appui-tab:hover {
+    background-color: rgba(246, 178, 181, 0.3);
+}
+
+.tab-btn {
+    float: left;
+    border: none;
+    cursor: pointer;
+    padding: 2px 8px;
+}
+
+.tab-btn .material-icons {
+    color: #757575;
+    font-size: 24px;
+    line-height: 1.5;
+}
+
+.tab-btn:hover {
+    background-color: rgba(246, 178, 181, 0.6);
+}
+
 .tab-buttons {
-    margin-top: 8px;
+    display: inline-block;
+    font-size: 18px;
+    padding: 2px 16px;
+    line-height: 36px;
 }

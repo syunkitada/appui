@@ -12,6 +12,8 @@ export function Render(input: any) {
     let View = input.View;
     const actionButtonClass = `${prefixKey}-actionButton`;
     const tabsId = `${prefixKey}tabs`;
+    const tabClass = `${prefixKey}tab`;
+    const tabContentId = `${prefixKey}tabContent`;
 
     const location = locationData.getLocationData();
     let indexPath;
@@ -31,7 +33,6 @@ export function Render(input: any) {
     if (View.ViewDataKey) {
         View = data.service.data[View.ViewDataKey];
     }
-    console.log("DEBUG View", View);
 
     let locationParams: any = {};
     if (location.Params) {
@@ -49,15 +50,14 @@ export function Render(input: any) {
             activeClass = "active";
         }
 
-        tabs.push(`
-        <li class="tab col s3"><a class="${activeClass}" href="#${tabId}">${tab.Name}</a></li>
-        `);
-        tabs.push(`
-        <li class="tab col s3"><a class="" href="#">Dummy</a></li>
-        `);
-        tabContents.push(`
-        <div id="${tabId}" class="col s12"></div>
-        `);
+        tabs.push(`<div class="appui-tab ${tabClass} ${activeClass}" data-idx="${i}">
+          <div>
+            <a class="tab-name" href="#${tabId}">
+              ${tab.Name}
+            </a>
+            <a class="tab-btn waves-effect waves-light"><i class="material-icons">close</i></a>
+          </div>
+        </div>`);
     }
 
     let title = "";
@@ -65,70 +65,126 @@ export function Render(input: any) {
         title = `<h4>${converter.formatText(View.Title)}</h4>`;
     }
 
-    console.log("DEBUG Actions", View.Name, View.Actions);
+    const actions: any = [];
     if (View.Actions && View.Actions.length > 0) {
-        const actions: any = [];
         for (let i = 0, len = View.Actions.length; i < len; i++) {
             actions.push(`
-              <a class="waves-effect waves-light btn-small ${actionButtonClass}" data-action-idx="${i}">
-                <i class="material-icons">add</i>
-              </a>
+            <div class="appui-tab">
+            <div>
+            <a class="tab-btn waves-effect waves-light ${actionButtonClass}" data-action-idx="${i}">
+              <i class="material-icons">add</i>
+            </a>
+            </div>
+            </div>
             `);
         }
-        tabs.push(`
-        <li class="tab-buttons">
-            ${actions}
-        </li>
-        `);
     }
 
     $(`#${id}`).html(`
-    <div class="row" style="padding: 0 5px">
+    <div class="row">
       ${title}
       <div class="col s12">
-        <ul id="${tabsId}" class="tabs">
+        <div id="${tabsId}" class="appui-tabs">
           ${tabs.join("")}
-        </ul>
+          ${actions.join("")}
+        </div>
       </div>
-      ${tabContents.join("")}
+      <div id="${tabContentId}" class="col s12"></div>
     </div>
     `);
 
-    let target: any = null;
-    let dummy: any = null;
-    $(".tab").on("mousedown", function () {
-        target = $(this);
-        dummy = $(`<li class="tab col s3">${target.html()}</a></li>`);
-        $(`#${tabsId}`).append(dummy);
-        dummy.css({
-            position: "absolute",
-            "z-index": 50,
-            border: "1px solid black"
-        });
-        console.log("DEBUG mousedown", $(this));
-    });
+    const tabHtmls = $(`.${tabClass}`);
 
-    $("#root")
-        .on("mouseup", function () {
-            if (target) {
-                target.css("position", "static");
-                target = null;
-            }
-            // if (dummy) {
-            //     dummy.remove();
-            //     dummy = null;
-            // }
-            console.log("DEBUG mouseup", $(this));
-        })
-        .on("mousemove", function (e: any) {
-            e.preventDefault();
-            if (dummy && target) {
-                const position = target.position();
-                dummy.css({ top: position.top, left: e.clientX });
-                console.log("DEBUG mousemove", e.clientX, e.clientY);
-                console.log("target position", target.position());
-            }
+    let targetPosition: any = null;
+    let target: any = null;
+    let targetIdx: any = null;
+    let dummy: any = null;
+    let mouseX: any = null;
+    $(`.${tabClass}`).on("mousedown", function (e: any) {
+        $("#root").off("mouseup").off("mousemove");
+        target = $(this);
+        const tmpIdx = target.attr("data-idx");
+        if (!tmpIdx) {
+            return;
+        }
+        targetIdx = parseInt(tmpIdx);
+        targetPosition = target.position();
+        dummy = $(`<div class="appui-tab dragged">${target.html()}</div>`).css({
+            position: "absolute",
+            top: targetPosition.top,
+            left: targetPosition.left
         });
+        $(`#${tabsId}`).append(dummy);
+        mouseX = e.clientX;
+        target.width(dummy.width()).height(dummy.height()).html("<div></div>");
+
+        $(`#root`)
+            .on("mouseup", function () {
+                if (target && dummy) {
+                    target.css("position", "static");
+                    target.html(dummy.html());
+                    dummy.remove();
+                    dummy = null;
+
+                    // view
+                    $(`.${tabClass}`).removeClass("active");
+                    target.addClass("active");
+                    const tabContent = View.Children[targetIdx];
+                    const newLocation = Object.assign({}, location);
+                    newLocation.Path[location.Path.length - 1] =
+                        tabContent.Name;
+                    $(`#${tabContentId}`).html("");
+                    service.getQueries({
+                        location: newLocation,
+                        view: { id: tabContentId, View: tabContent }
+                    });
+
+                    target = null;
+                }
+            })
+            .on("mousemove", function (e: any) {
+                e.preventDefault();
+                if (dummy && target) {
+                    const tmpTargetPosition = target.position();
+                    const dummyPosition = dummy.position();
+                    const newDummyLeft =
+                        dummyPosition.left - (mouseX - e.clientX);
+                    const halfWidth = target.width() / 2;
+                    if (newDummyLeft < tmpTargetPosition.left - halfWidth) {
+                        if (targetIdx != 0) {
+                            // switch left tab
+                            const previousTab = $(tabHtmls[targetIdx - 1]);
+                            const previousTabHtml = previousTab.html();
+                            previousTab.html(target.html());
+                            target.html(previousTabHtml).width("auto");
+                            previousTab.width(dummy.width());
+                            target = previousTab;
+                            targetIdx = targetIdx - 1;
+                        }
+                    } else if (
+                        newDummyLeft >
+                        tmpTargetPosition.left + halfWidth
+                    ) {
+                        if (targetIdx + 1 < View.Children.length) {
+                            // switch right tab
+                            const nextTab = $(tabHtmls[targetIdx + 1]);
+                            const nextTabHtml = nextTab.html();
+                            nextTab.html(target.html());
+                            target.html(nextTabHtml).width("auto");
+                            nextTab.width(dummy.width());
+                            target = nextTab;
+                            targetIdx = targetIdx + 1;
+                        }
+                    }
+
+                    dummy.css({
+                        top: targetPosition.top,
+                        left: newDummyLeft
+                    });
+                    mouseX = e.clientX;
+                }
+            });
+    });
 
     $(`.${actionButtonClass}`).on("click", function () {
         const dataActionIdx = $(this).attr("data-action-idx");
@@ -139,29 +195,29 @@ export function Render(input: any) {
         console.log(action);
     });
 
-    $(`#${tabsId}`).tabs({
-        onShow: function (content: any) {
-            const splitedId = content.id.split("-");
-            const tab = View.Children[splitedId[splitedId.length - 1]];
-            const newLocation = Object.assign({}, location);
-            newLocation.Path[location.Path.length - 1] = tab.Name;
-            service.getQueries({
-                location: newLocation,
-                view: { id: content.id, View: tab }
-            });
-        }
-    });
+    // tabs
+    // $(`#${tabsId}`).tabs({
+    //     onShow: function (content: any) {
+    //         const splitedId = content.id.split("-");
+    //         const tab = View.Children[splitedId[splitedId.length - 1]];
+    //         const newLocation = Object.assign({}, location);
+    //         newLocation.Path[location.Path.length - 1] = tab.Name;
+    //         service.getQueries({
+    //             location: newLocation,
+    //             view: { id: content.id, View: tab }
+    //         });
+    //     }
+    // });
 
     for (let i = 0, len = View.Children.length; i < len; i++) {
         const tab = View.Children[i];
-        const tabId = `${id}-Tabs-${i}`;
 
         if (tab.Name !== indexPath) {
             continue;
         }
 
         Index.Render({
-            id: tabId,
+            id: tabContentId,
             View: tab
         });
         break;

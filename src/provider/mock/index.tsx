@@ -177,9 +177,15 @@ class Provider implements IProvider {
                                 Name: "New",
                                 Kind: "Editor",
                                 DataKey: "NoteText"
+                            },
+                            {
+                                Name: "Hoge",
+                                Kind: "Editor",
+                                DataKey: "NoteText"
                             }
                         ]
                     };
+                    console.log("DEBUG GetNote", input.location.Params);
                     newData.NoteText = `
 # HOGE
 
