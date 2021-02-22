@@ -137,6 +137,7 @@ function getIndex(index: any, path: any): any {
     if (index.Children) {
         for (let i = 0, len = index.Children.length; i < len; i++) {
             const child = index.Children[i];
+            child._childIndex = i;
             if (child.Name !== path[0]) {
                 continue;
             }

@@ -147,20 +147,20 @@ class Provider implements IProvider {
     }
 
     getQueries(input: any): void {
-        const { onSuccess, onError } = input;
+        const { onSuccess, onError, location } = input;
         const data = {};
         const newData: any = {};
 
-        for (let i = 0, len = input.location.DataQueries.length; i < len; i++) {
-            const query = input.location.DataQueries[i];
+        for (let i = 0, len = location.DataQueries.length; i < len; i++) {
+            const query = location.DataQueries[i];
             switch (query) {
                 case "GetNote": {
-                    const id = input.location.Params.Id.toString();
+                    const id = location.Params.Id.toString();
                     const localData = utils.getLocalData({});
                     const note = localData.NoteMap[id];
                     console.log("TODO GetNote", note);
                     newData.Note = {
-                        Actions: [{ Name: "AddTab" }],
+                        Actions: [{ Kind: "AddTab" }],
                         Children: [
                             {
                                 Name: "New",
@@ -171,7 +171,8 @@ class Provider implements IProvider {
                         ]
                     };
                     newData.NoteTexts = {
-                        Actions: [{ Name: "AddTab" }],
+                        Actions: [{ Kind: "AddTab" }],
+                        TabParamKey: "Text",
                         Children: [
                             {
                                 Name: "New",
@@ -185,12 +186,20 @@ class Provider implements IProvider {
                             }
                         ]
                     };
-                    console.log("DEBUG GetNote", input.location.Params);
-                    newData.NoteText = `
+
+                    if (location.Params["Text"] === "Hoge") {
+                        newData.NoteText = `
+# HogeText
+
+hoge
+                    `;
+                    } else {
+                        newData.NoteText = `
 # HOGE
 
 test
                     `;
+                    }
                     break;
                 }
             }

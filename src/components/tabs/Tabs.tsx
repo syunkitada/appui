@@ -16,13 +16,21 @@ export function Render(input: any) {
     const tabContentId = `${prefixKey}tabContent`;
 
     const location = locationData.getLocationData();
-    let indexPath;
+    let indexPath = "";
     if (location.SubPath) {
         indexPath = location.SubPath[View.Name];
     } else if (View.Name === "Root") {
         indexPath = location.Path[0];
     } else {
         for (let i = 0, len = location.Path.length; i < len; i++) {
+            const pathName = location.Path[i];
+            if (pathName.indexOf("@") === 0) {
+                const tabIndex = parseInt(pathName.slice(1, pathName.length));
+                if (View._childIndex === tabIndex) {
+                    indexPath = location.Path[i + 1];
+                    break;
+                }
+            }
             if (View.Name === location.Path[i]) {
                 indexPath = location.Path[i + 1];
                 break;
@@ -39,6 +47,13 @@ export function Render(input: any) {
         locationParams = location.Params;
     }
 
+    let dynamicIndexPath = 0;
+    let isDynamicIndexPath = false;
+    if (indexPath.indexOf("@") == 0) {
+        isDynamicIndexPath = true;
+        dynamicIndexPath = parseInt(indexPath.slice(1, indexPath.length));
+    }
+
     const tabs = [];
     const tabContents = [];
     for (let i = 0, len = View.Children.length; i < len; i++) {
@@ -46,7 +61,11 @@ export function Render(input: any) {
         const tabId = `${id}-Tabs-${i}`;
 
         let activeClass = "";
-        if (tab.Name === indexPath) {
+        if (isDynamicIndexPath) {
+            if (dynamicIndexPath === i) {
+                activeClass = "active";
+            }
+        } else if (tab.Name === indexPath) {
             activeClass = "active";
         }
 
@@ -68,15 +87,20 @@ export function Render(input: any) {
     const actions: any = [];
     if (View.Actions && View.Actions.length > 0) {
         for (let i = 0, len = View.Actions.length; i < len; i++) {
-            actions.push(`
-            <div class="appui-tab">
-            <div>
-            <a class="tab-btn waves-effect waves-light ${actionButtonClass}" data-action-idx="${i}">
-              <i class="material-icons">add</i>
-            </a>
-            </div>
-            </div>
-            `);
+            const action = View.Actions[i];
+            switch (action.Kind) {
+                case "AddTab":
+                    actions.push(`
+                    <div class="appui-tab">
+                      <div>
+                        <a class="tab-btn waves-effect waves-light ${actionButtonClass}" data-action-idx="${i}">
+                          <i class="material-icons">add</i>
+                        </a>
+                      </div>
+                    </div>
+                    `);
+                    break;
+            }
         }
     }
 
@@ -126,7 +150,7 @@ export function Render(input: any) {
                     dummy.remove();
                     dummy = null;
 
-                    // view
+                    // render tab content
                     $(`.${tabClass}`).removeClass("active");
                     target.addClass("active");
                     const tabContent = View.Children[targetIdx];
@@ -134,6 +158,9 @@ export function Render(input: any) {
                     newLocation.Path[location.Path.length - 1] =
                         tabContent.Name;
                     $(`#${tabContentId}`).html("");
+                    if (View.TabParamKey) {
+                        location.Params[View.TabParamKey] = tabContent.Name;
+                    }
                     service.getQueries({
                         location: newLocation,
                         view: { id: tabContentId, View: tabContent }
@@ -150,7 +177,7 @@ export function Render(input: any) {
                     const newDummyLeft =
                         dummyPosition.left - (mouseX - e.clientX);
                     const halfWidth = target.width() / 2;
-                    if (newDummyLeft < tmpTargetPosition.left - halfWidth) {
+                    if (newDummyLeft < tmpTargetPosition.left - halfWidth - 5) {
                         if (targetIdx != 0) {
                             // switch left tab
                             const previousTab = $(tabHtmls[targetIdx - 1]);
@@ -163,7 +190,7 @@ export function Render(input: any) {
                         }
                     } else if (
                         newDummyLeft >
-                        tmpTargetPosition.left + halfWidth
+                        tmpTargetPosition.left + halfWidth + 5
                     ) {
                         if (targetIdx + 1 < View.Children.length) {
                             // switch right tab
@@ -212,9 +239,15 @@ export function Render(input: any) {
     for (let i = 0, len = View.Children.length; i < len; i++) {
         const tab = View.Children[i];
 
-        if (tab.Name !== indexPath) {
+        if (isDynamicIndexPath) {
+            if (dynamicIndexPath !== i) {
+                continue;
+            }
+        } else if (tab.Name !== indexPath) {
             continue;
         }
+
+        tab._childIndex = i;
 
         Index.Render({
             id: tabContentId,
