@@ -157,49 +157,68 @@ class Provider implements IProvider {
                 case "GetNote": {
                     const id = location.Params.Id.toString();
                     const localData = utils.getLocalData({});
-                    const note = localData.NoteMap[id];
+                    let note = localData.NoteMap[id];
+                    if (!note) {
+                        note = {
+                            Groups: [
+                                {
+                                    Name: "New",
+                                    Texts: [
+                                        {
+                                            Name: "New",
+                                            Text: "# New"
+                                        }
+                                    ]
+                                }
+                            ]
+                        };
+                    }
+
+                    const groupName = location.Params["Group"]
+                    const textName = location.Params["Text"]
+
+                    const noteChildren = [];
+                    const noteTexts = []
+                    let noteText = ""
+                    for (let i = 0, len = note.Groups.length; i < len; i++) {
+                        const group = note.Groups[i]
+                        noteChildren.push({
+                            Name: group.Name,
+                            Kind: "Tabs",
+                            ViewDataKey: "NoteTexts",
+                            Placement: "Right"
+                        });
+                        if (!groupName && i == 0 || group.Name === groupName) {
+                            for (let j = 0, lenj = group.Texts.length; j < lenj; j++) {
+                                const text = group.Texts[j]
+                                noteTexts.push(
+                            {
+                                Name: text.Name,
+                                Kind: "Editor",
+                                DataKey: "NoteText"
+                            }
+                                )
+                                if (text.Name === textName) {
+                                    noteText = text.Text
+                                }
+                            }
+                        }
+                        note.Groups[i]
+                    }
                     console.log("TODO GetNote", note);
                     newData.Note = {
                         Actions: [{ Kind: "AddTab" }],
-                        Children: [
-                            {
-                                Name: "New",
-                                Kind: "Tabs",
-                                ViewDataKey: "NoteTexts",
-                                Placement: "Right"
-                            }
-                        ]
+                        TabParamKey: "Group",
+                        Children: noteChildren
                     };
+
                     newData.NoteTexts = {
                         Actions: [{ Kind: "AddTab" }],
                         TabParamKey: "Text",
-                        Children: [
-                            {
-                                Name: "New",
-                                Kind: "Editor",
-                                DataKey: "NoteText"
-                            },
-                            {
-                                Name: "Hoge",
-                                Kind: "Editor",
-                                DataKey: "NoteText"
-                            }
-                        ]
+                        Children: noteTexts,
                     };
 
-                    if (location.Params["Text"] === "Hoge") {
-                        newData.NoteText = `
-# HogeText
-
-hoge
-                    `;
-                    } else {
-                        newData.NoteText = `
-# HOGE
-
-test
-                    `;
-                    }
+                    newData.NoteText = noteText
                     break;
                 }
             }
