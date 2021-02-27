@@ -63,6 +63,14 @@ export function Render(input: any) {
     </div>
     `);
 
+    $(`#${inputId}`)
+        .on("keyup", function () {
+            View.OnChange($(this).val());
+        })
+        .on("change", function () {
+            View.OnChange($(this).val());
+        });
+
     M.textareaAutoResize($(`#${inputId}`));
 
     const textarea = $(`#${inputId}`);

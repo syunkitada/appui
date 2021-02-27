@@ -155,11 +155,21 @@ export function Render(input: any) {
                     target.addClass("active");
                     const tabContent = View.Children[targetIdx];
                     const newLocation = Object.assign({}, location);
-                    newLocation.Path[location.Path.length - 1] =
-                        tabContent.Name;
+                    if (isDynamicIndexPath) {
+                        newLocation.Path[
+                            location.Path.length - 1
+                        ] = `@${targetIdx}`;
+                    } else {
+                        newLocation.Path[location.Path.length - 1] =
+                            tabContent.Name;
+                    }
                     $(`#${tabContentId}`).html("");
                     if (View.TabParamKey) {
-                        location.Params[View.TabParamKey] = tabContent.Name;
+                        if (isDynamicIndexPath) {
+                            location.Params[View.TabParamKey] = `@${targetIdx}`;
+                        } else {
+                            location.Params[View.TabParamKey] = tabContent.Name;
+                        }
                     }
                     service.getQueries({
                         location: newLocation,
@@ -220,21 +230,20 @@ export function Render(input: any) {
         }
         const action = View.Actions[parseInt(dataActionIdx)];
         console.log(action);
-    });
+        const params = {};
 
-    // tabs
-    // $(`#${tabsId}`).tabs({
-    //     onShow: function (content: any) {
-    //         const splitedId = content.id.split("-");
-    //         const tab = View.Children[splitedId[splitedId.length - 1]];
-    //         const newLocation = Object.assign({}, location);
-    //         newLocation.Path[location.Path.length - 1] = tab.Name;
-    //         service.getQueries({
-    //             location: newLocation,
-    //             view: { id: content.id, View: tab }
-    //         });
-    //     }
-    // });
+        service.submitQueries({
+            queries: [action.Action],
+            location: location,
+            params: params,
+            onSuccess: function () {
+                console.log("tab onSuccess");
+            },
+            onError: function () {
+                console.log("tab onError");
+            }
+        });
+    });
 
     for (let i = 0, len = View.Children.length; i < len; i++) {
         const tab = View.Children[i];

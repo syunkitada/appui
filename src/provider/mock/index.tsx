@@ -58,7 +58,7 @@ class Provider implements IProvider {
         if (token) {
             const auth = JSON.parse(token);
             data.auth = auth;
-            const localData = utils.getLocalData({ isInit: true });
+            const localData = utils.getLocalData({ isInit: false });
             utils.setLocalData(localData);
             onSuccess({});
         } else {
@@ -172,53 +172,83 @@ class Provider implements IProvider {
                                 }
                             ]
                         };
+                        localData.NoteMap[id] = note;
+                        utils.setLocalData(localData);
                     }
 
-                    const groupName = location.Params["Group"]
-                    const textName = location.Params["Text"]
+                    const groupName = location.Params["Group"];
+                    let groupIndex = -1;
+                    if (groupName && groupName.indexOf("@") === 0) {
+                        groupIndex = parseInt(
+                            groupName.slice(1, groupName.length)
+                        );
+                    }
+                    const textName = location.Params["Text"];
+                    let textIndex = -1;
+                    if (textName && textName.indexOf("@") === 0) {
+                        textIndex = parseInt(
+                            textName.slice(1, textName.length)
+                        );
+                    }
 
                     const noteChildren = [];
-                    const noteTexts = []
-                    let noteText = ""
+                    const noteTexts = [];
+                    let noteText = "";
                     for (let i = 0, len = note.Groups.length; i < len; i++) {
-                        const group = note.Groups[i]
+                        const group = note.Groups[i];
                         noteChildren.push({
                             Name: group.Name,
                             Kind: "Tabs",
                             ViewDataKey: "NoteTexts",
                             Placement: "Right"
                         });
-                        if (!groupName && i == 0 || group.Name === groupName) {
-                            for (let j = 0, lenj = group.Texts.length; j < lenj; j++) {
-                                const text = group.Texts[j]
-                                noteTexts.push(
-                            {
-                                Name: text.Name,
-                                Kind: "Editor",
-                                DataKey: "NoteText"
-                            }
-                                )
-                                if (text.Name === textName) {
-                                    noteText = text.Text
+                        if (
+                            (groupIndex !== -1 && i === groupIndex) ||
+                            (!groupName && i == 0) ||
+                            group.Name === groupName
+                        ) {
+                            for (
+                                let j = 0, lenj = group.Texts.length;
+                                j < lenj;
+                                j++
+                            ) {
+                                const text = group.Texts[j];
+                                noteTexts.push({
+                                    Name: text.Name,
+                                    Kind: "Editor",
+                                    DataKey: "NoteText",
+                                    OnChange: function (val: any) {
+                                        console.log("DEBUG val", val);
+                                        text.Text = val;
+                                        utils.setLocalData(localData);
+                                    }
+                                });
+                                if (
+                                    (textIndex !== -1 && j == textIndex) ||
+                                    (!textName && j == 0) ||
+                                    text.Name === textName
+                                ) {
+                                    noteText = text.Text;
+                                    console.log("DEBUG hoge");
                                 }
                             }
                         }
-                        note.Groups[i]
+                        note.Groups[i];
                     }
-                    console.log("TODO GetNote", note);
+                    console.log("TODO GetNote", note, noteText);
                     newData.Note = {
-                        Actions: [{ Kind: "AddTab" }],
+                        Actions: [{ Kind: "AddTab", Action: "AddNoteGroup" }],
                         TabParamKey: "Group",
                         Children: noteChildren
                     };
 
                     newData.NoteTexts = {
-                        Actions: [{ Kind: "AddTab" }],
+                        Actions: [{ Kind: "AddTab", Action: "AddNoteText" }],
                         TabParamKey: "Text",
-                        Children: noteTexts,
+                        Children: noteTexts
                     };
 
-                    newData.NoteText = noteText
+                    newData.NoteText = noteText;
                     break;
                 }
             }
@@ -231,6 +261,8 @@ class Provider implements IProvider {
         const { queries, location, params, onSuccess, onError } = input;
         const that = this;
         const newData: any = {};
+        const groupName = location.Params["Group"];
+        const textName = location.Params["Text"];
         for (let i = 0, len = queries.length; i < len; i++) {
             const query = queries[i];
             switch (query) {
@@ -242,6 +274,37 @@ class Provider implements IProvider {
                     });
                     utils.setLocalData(localData);
                     newData.Notes = localData.Notes;
+                    break;
+                }
+                case "AddNoteGroup": {
+                    console.log("Add NoteGroup");
+                    break;
+                }
+                case "AddNoteText": {
+                    console.log("Add NoteText");
+                    const localData = utils.getLocalData({});
+                    const id = location.Params.Id.toString();
+                    let note = localData.NoteMap[id];
+
+                    for (let i = 0, len = note.Groups.length; i < len; i++) {
+                        const group = note.Groups[i];
+                        if (
+                            (!groupName && i == 0) ||
+                            group.Name === groupName
+                        ) {
+                            // note.Groups[i].Texts.push
+                            group.Texts.push({
+                                Name: "New",
+                                Text: "# New"
+                            });
+                        }
+                    }
+
+                    console.log("DEBUG note", note, localData);
+                    utils.setLocalData(localData);
+                    const tmpLocalData = utils.getLocalData({});
+                    console.log("DEBUG localData", tmpLocalData);
+
                     break;
                 }
             }
