@@ -13,9 +13,12 @@ export function Render(input: any) {
     const actionButtonClass = `${prefixKey}-actionButton`;
     const tabsId = `${prefixKey}tabs`;
     const tabClass = `${prefixKey}tab`;
+    const tabNameClass = `${prefixKey}tabName`;
+    const tabCloseClass = `${prefixKey}tabClose`;
     const tabContentId = `${prefixKey}tabContent`;
 
     const location = locationData.getLocationData();
+    let pathIndex = 0;
     let indexPath = "";
     if (location.SubPath) {
         indexPath = location.SubPath[View.Name];
@@ -28,11 +31,12 @@ export function Render(input: any) {
                 const tabIndex = parseInt(pathName.slice(1, pathName.length));
                 if (View._childIndex === tabIndex) {
                     indexPath = location.Path[i + 1];
+                    pathIndex = i;
                     break;
                 }
-            }
-            if (View.Name === location.Path[i]) {
+            } else if (View.Name === location.Path[i]) {
                 indexPath = location.Path[i + 1];
+                pathIndex = i;
                 break;
             }
         }
@@ -71,10 +75,10 @@ export function Render(input: any) {
 
         tabs.push(`<div class="appui-tab ${tabClass} ${activeClass}" data-idx="${i}">
           <div>
-            <a class="tab-name" href="#${tabId}">
+            <a class="tab-name ${tabNameClass}">
               ${tab.Name}
             </a>
-            <a class="tab-btn waves-effect waves-light"><i class="material-icons">close</i></a>
+            <a class="tab-btn waves-effect waves-light ${tabCloseClass}"><i class="material-icons">close</i></a>
           </div>
         </div>`);
     }
@@ -124,10 +128,12 @@ export function Render(input: any) {
     let targetIdx: any = null;
     let dummy: any = null;
     let mouseX: any = null;
-    $(`.${tabClass}`).on("mousedown", function (e: any) {
+
+    function onMousedown(that: any, e: any) {
         $("#root").off("mouseup").off("mousemove");
-        target = $(this);
+        target = $(that).parent().parent();
         const tmpIdx = target.attr("data-idx");
+        console.log("DEBUG tmpIdx", tmpIdx);
         if (!tmpIdx) {
             return;
         }
@@ -149,19 +155,30 @@ export function Render(input: any) {
                     target.html(dummy.html());
                     dummy.remove();
                     dummy = null;
+                    initTabs();
 
                     // render tab content
                     $(`.${tabClass}`).removeClass("active");
                     target.addClass("active");
+                    target = null;
                     const tabContent = View.Children[targetIdx];
+                    tabContent._childIndex = targetIdx;
                     const newLocation = Object.assign({}, location);
                     if (isDynamicIndexPath) {
-                        newLocation.Path[
-                            location.Path.length - 1
-                        ] = `@${targetIdx}`;
+                        newLocation.Path[pathIndex + 1] = `@${targetIdx}`;
+                        for (
+                            let i = pathIndex + 2,
+                                len = newLocation.Path.length;
+                            i < len;
+                            i++
+                        ) {
+                            const path = newLocation.Path[i];
+                            if (indexPath.indexOf("@") == 0) {
+                                newLocation.Path[i] = "@0";
+                            }
+                        }
                     } else {
-                        newLocation.Path[location.Path.length - 1] =
-                            tabContent.Name;
+                        newLocation.Path[pathIndex + 1] = tabContent.Name;
                     }
                     $(`#${tabContentId}`).html("");
                     if (View.TabParamKey) {
@@ -171,12 +188,17 @@ export function Render(input: any) {
                             location.Params[View.TabParamKey] = tabContent.Name;
                         }
                     }
+                    if (View.StaticParams) {
+                        location.Params = Object.assign(
+                            {},
+                            location.Params,
+                            View.StaticParams
+                        );
+                    }
                     service.getQueries({
                         location: newLocation,
                         view: { id: tabContentId, View: tabContent }
                     });
-
-                    target = null;
                 }
             })
             .on("mousemove", function (e: any) {
@@ -221,7 +243,41 @@ export function Render(input: any) {
                     mouseX = e.clientX;
                 }
             });
-    });
+    }
+
+    function initTabs() {
+        $(`.${tabNameClass}`)
+            .off("mousedown")
+            .on("mousedown", function (e: any) {
+                onMousedown(this, e);
+            });
+
+        $(`.${tabCloseClass}`)
+            .off("click")
+            .on("click", function (e: any) {
+                e.preventDefault();
+                const target = $(this).parent().parent();
+                const tmpIdx = target.attr("data-idx");
+
+                console.log("DEBUG Close", tmpIdx);
+                // const params = {};
+                // service.submitQueries({
+                //     queries: [View.TabCloseAction],
+                //     location: location,
+                //     params: params,
+                //     onSuccess: function () {
+                //         console.log("DEBUG  onSuccess");
+                //         // const newLocation = Object.assign({}, location);
+                //         // newLocation.Path[pathIndex + 1] = `@${View.Children.length}`;
+                //         // newLocation.Params[
+                //         //     View.TabParamKey
+                //         // ] = `@${View.Children.length}`;
+                //         // service.getQueries({ location: newLocation });
+                //     }
+                // });
+            });
+    }
+    initTabs();
 
     $(`.${actionButtonClass}`).on("click", function () {
         const dataActionIdx = $(this).attr("data-action-idx");
@@ -229,7 +285,6 @@ export function Render(input: any) {
             return;
         }
         const action = View.Actions[parseInt(dataActionIdx)];
-        console.log(action);
         const params = {};
 
         service.submitQueries({
@@ -237,10 +292,12 @@ export function Render(input: any) {
             location: location,
             params: params,
             onSuccess: function () {
-                console.log("tab onSuccess");
-            },
-            onError: function () {
-                console.log("tab onError");
+                const newLocation = Object.assign({}, location);
+                newLocation.Path[pathIndex + 1] = `@${View.Children.length}`;
+                newLocation.Params[
+                    View.TabParamKey
+                ] = `@${View.Children.length}`;
+                service.getQueries({ location: newLocation });
             }
         });
     });

@@ -218,7 +218,6 @@ class Provider implements IProvider {
                                     Kind: "Editor",
                                     DataKey: "NoteText",
                                     OnChange: function (val: any) {
-                                        console.log("DEBUG val", val);
                                         text.Text = val;
                                         utils.setLocalData(localData);
                                     }
@@ -229,22 +228,26 @@ class Provider implements IProvider {
                                     text.Name === textName
                                 ) {
                                     noteText = text.Text;
-                                    console.log("DEBUG hoge");
                                 }
                             }
                         }
                         note.Groups[i];
                     }
-                    console.log("TODO GetNote", note, noteText);
+
                     newData.Note = {
                         Actions: [{ Kind: "AddTab", Action: "AddNoteGroup" }],
                         TabParamKey: "Group",
+                        TabCloseAction: "RemoveNoteGroup",
+                        StaticParams: {
+                            Text: "@0"
+                        },
                         Children: noteChildren
                     };
 
                     newData.NoteTexts = {
                         Actions: [{ Kind: "AddTab", Action: "AddNoteText" }],
                         TabParamKey: "Text",
+                        TabCloseAction: "RemoveNoteText",
                         Children: noteTexts
                     };
 
@@ -277,22 +280,45 @@ class Provider implements IProvider {
                     break;
                 }
                 case "AddNoteGroup": {
-                    console.log("Add NoteGroup");
-                    break;
-                }
-                case "AddNoteText": {
-                    console.log("Add NoteText");
                     const localData = utils.getLocalData({});
                     const id = location.Params.Id.toString();
                     let note = localData.NoteMap[id];
 
+                    note.Groups.push({
+                        Name: "New",
+                        Texts: [
+                            {
+                                Name: "New",
+                                Text: "# New"
+                            }
+                        ]
+                    });
+
+                    utils.setLocalData(localData);
+                    const tmpLocalData = utils.getLocalData({});
+
+                    break;
+                }
+                case "AddNoteText": {
+                    const localData = utils.getLocalData({});
+                    const id = location.Params.Id.toString();
+                    let note = localData.NoteMap[id];
+
+                    const groupName = location.Params["Group"];
+                    let groupIndex = -1;
+                    if (groupName && groupName.indexOf("@") === 0) {
+                        groupIndex = parseInt(
+                            groupName.slice(1, groupName.length)
+                        );
+                    }
+
                     for (let i = 0, len = note.Groups.length; i < len; i++) {
                         const group = note.Groups[i];
                         if (
+                            (groupIndex !== -1 && i === groupIndex) ||
                             (!groupName && i == 0) ||
                             group.Name === groupName
                         ) {
-                            // note.Groups[i].Texts.push
                             group.Texts.push({
                                 Name: "New",
                                 Text: "# New"
@@ -300,10 +326,8 @@ class Provider implements IProvider {
                         }
                     }
 
-                    console.log("DEBUG note", note, localData);
                     utils.setLocalData(localData);
                     const tmpLocalData = utils.getLocalData({});
-                    console.log("DEBUG localData", tmpLocalData);
 
                     break;
                 }
