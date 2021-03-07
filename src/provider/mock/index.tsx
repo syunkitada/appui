@@ -299,6 +299,18 @@ class Provider implements IProvider {
 
                     break;
                 }
+                case "RemoveNoteGroup": {
+                    const localData = utils.getLocalData({});
+                    const id = location.Params.Id.toString();
+                    let note = localData.NoteMap[id];
+
+                    note.Groups.splice(params.Idx, 1);
+
+                    utils.setLocalData(localData);
+                    const tmpLocalData = utils.getLocalData({});
+
+                    break;
+                }
                 case "AddNoteText": {
                     const localData = utils.getLocalData({});
                     const id = location.Params.Id.toString();
@@ -323,6 +335,35 @@ class Provider implements IProvider {
                                 Name: "New",
                                 Text: "# New"
                             });
+                        }
+                    }
+
+                    utils.setLocalData(localData);
+                    const tmpLocalData = utils.getLocalData({});
+
+                    break;
+                }
+                case "RemoveNoteText": {
+                    const localData = utils.getLocalData({});
+                    const id = location.Params.Id.toString();
+                    let note = localData.NoteMap[id];
+
+                    const groupName = location.Params.Group;
+                    let groupIndex = -1;
+                    if (groupName && groupName.indexOf("@") === 0) {
+                        groupIndex = parseInt(
+                            groupName.slice(1, groupName.length)
+                        );
+                    }
+
+                    for (let i = 0, len = note.Groups.length; i < len; i++) {
+                        const group = note.Groups[i];
+                        if (
+                            (groupIndex !== -1 && i === groupIndex) ||
+                            (!groupName && i == 0) ||
+                            group.Name === groupName
+                        ) {
+                            group.Texts.splice(params.Idx, 1);
                         }
                     }
 

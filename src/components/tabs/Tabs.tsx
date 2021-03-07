@@ -211,7 +211,7 @@ export function Render(input: any) {
                     const halfWidth = target.width() / 2;
                     if (newDummyLeft < tmpTargetPosition.left - halfWidth - 5) {
                         if (targetIdx != 0) {
-                            // switch left tab
+                            // Switch left tab
                             const previousTab = $(tabHtmls[targetIdx - 1]);
                             const previousTabHtml = previousTab.html();
                             previousTab.html(target.html());
@@ -219,6 +219,8 @@ export function Render(input: any) {
                             previousTab.width(dummy.width());
                             target = previousTab;
                             targetIdx = targetIdx - 1;
+
+                            // TODO Switch by SP
                         }
                     } else if (
                         newDummyLeft >
@@ -233,6 +235,8 @@ export function Render(input: any) {
                             nextTab.width(dummy.width());
                             target = nextTab;
                             targetIdx = targetIdx + 1;
+
+                            // TODO Switch by SP
                         }
                     }
 
@@ -252,6 +256,7 @@ export function Render(input: any) {
                 onMousedown(this, e);
             });
 
+        // Close Tab
         $(`.${tabCloseClass}`)
             .off("click")
             .on("click", function (e: any) {
@@ -259,22 +264,21 @@ export function Render(input: any) {
                 const target = $(this).parent().parent();
                 const tmpIdx = target.attr("data-idx");
 
-                console.log("DEBUG Close", tmpIdx);
-                // const params = {};
-                // service.submitQueries({
-                //     queries: [View.TabCloseAction],
-                //     location: location,
-                //     params: params,
-                //     onSuccess: function () {
-                //         console.log("DEBUG  onSuccess");
-                //         // const newLocation = Object.assign({}, location);
-                //         // newLocation.Path[pathIndex + 1] = `@${View.Children.length}`;
-                //         // newLocation.Params[
-                //         //     View.TabParamKey
-                //         // ] = `@${View.Children.length}`;
-                //         // service.getQueries({ location: newLocation });
-                //     }
-                // });
+                const params = {
+                    Idx: tmpIdx
+                };
+                service.submitQueries({
+                    queries: [View.TabCloseAction],
+                    location: location,
+                    params: params,
+                    onSuccess: function () {
+                        console.log("DEBUG  onSuccess");
+                        const newLocation = Object.assign({}, location);
+                        newLocation.Path[pathIndex + 1] = `@0`;
+                        newLocation.Params[View.TabParamKey] = `@0`;
+                        service.getQueries({ location: newLocation });
+                    }
+                });
             });
     }
     initTabs();
