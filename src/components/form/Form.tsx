@@ -42,6 +42,8 @@ export function Render(input: any) {
             let value = "";
             if (field.DefaultFunc) {
                 value = field.DefaultFunc(data.service.data);
+            } else if (field.Default) {
+                value = field.Default;
             }
             if (field.Key) {
                 fieldParams[field.Key] = null;
@@ -224,12 +226,17 @@ export function Render(input: any) {
             return;
         }
 
-        startProgress();
         if (onSubmit) {
+            startProgress();
             onSubmit({
-                params: fieldParams
+                params: fieldParams,
+                onSuccess: function () {
+                    stopProgress();
+                    Dashboard.RootModal.Close();
+                }
             });
         } else {
+            startProgress();
             service.submitQueries({
                 queries: [View.Action],
                 location: location,

@@ -238,6 +238,8 @@ class Provider implements IProvider {
                         Actions: [{ Kind: "AddTab", Action: "AddNoteGroup" }],
                         TabParamKey: "Group",
                         TabCloseAction: "RemoveNoteGroup",
+                        TabSwitchAction: "SwitchNoteGroup",
+                        TabRenameAction: "RenameNoteGroup",
                         StaticParams: {
                             Text: "@0"
                         },
@@ -248,6 +250,8 @@ class Provider implements IProvider {
                         Actions: [{ Kind: "AddTab", Action: "AddNoteText" }],
                         TabParamKey: "Text",
                         TabCloseAction: "RemoveNoteText",
+                        TabSwitchAction: "SwitchNoteText",
+                        TabRenameAction: "RenameNoteText",
                         Children: noteTexts
                     };
 
@@ -370,6 +374,91 @@ class Provider implements IProvider {
                     utils.setLocalData(localData);
                     const tmpLocalData = utils.getLocalData({});
 
+                    break;
+                }
+                case "SwitchNoteGroup": {
+                    const localData = utils.getLocalData({});
+                    const id = location.Params.Id.toString();
+                    let note = localData.NoteMap[id];
+
+                    const targetGroup = note.Groups[params.TargetIdx];
+                    note.Groups[params.TargetIdx] = note.Groups[params.SrcIdx];
+                    note.Groups[params.SrcIdx] = targetGroup;
+
+                    utils.setLocalData(localData);
+                    const tmpLocalData = utils.getLocalData({});
+
+                    break;
+                }
+                case "SwitchNoteText": {
+                    const localData = utils.getLocalData({});
+                    const id = location.Params.Id.toString();
+                    let note = localData.NoteMap[id];
+
+                    const groupName = location.Params.Group;
+                    let groupIndex = -1;
+                    if (groupName && groupName.indexOf("@") === 0) {
+                        groupIndex = parseInt(
+                            groupName.slice(1, groupName.length)
+                        );
+                    }
+
+                    for (let i = 0, len = note.Groups.length; i < len; i++) {
+                        const group = note.Groups[i];
+                        if (
+                            (groupIndex !== -1 && i === groupIndex) ||
+                            (!groupName && i == 0) ||
+                            group.Name === groupName
+                        ) {
+                            const targetText = group.Texts[params.TargetIdx];
+                            group.Texts[params.TargetIdx] =
+                                group.Texts[params.SrcIdx];
+                            group.Texts[params.SrcIdx] = targetText;
+                            break;
+                        }
+                    }
+
+                    utils.setLocalData(localData);
+                    const tmpLocalData = utils.getLocalData({});
+
+                    break;
+                }
+                case "RenameNoteGroup": {
+                    const localData = utils.getLocalData({});
+                    const id = location.Params.Id.toString();
+                    let note = localData.NoteMap[id];
+                    note.Groups[params.Idx].Name = params.Name;
+                    utils.setLocalData(localData);
+                    const tmpLocalData = utils.getLocalData({});
+                    break;
+                }
+                case "RenameNoteText": {
+                    const localData = utils.getLocalData({});
+                    const id = location.Params.Id.toString();
+                    let note = localData.NoteMap[id];
+
+                    const groupName = location.Params.Group;
+                    let groupIndex = -1;
+                    if (groupName && groupName.indexOf("@") === 0) {
+                        groupIndex = parseInt(
+                            groupName.slice(1, groupName.length)
+                        );
+                    }
+
+                    for (let i = 0, len = note.Groups.length; i < len; i++) {
+                        const group = note.Groups[i];
+                        if (
+                            (groupIndex !== -1 && i === groupIndex) ||
+                            (!groupName && i == 0) ||
+                            group.Name === groupName
+                        ) {
+                            group.Texts[params.Idx].Name = params.Name;
+                            break;
+                        }
+                    }
+
+                    utils.setLocalData(localData);
+                    const tmpLocalData = utils.getLocalData({});
                     break;
                 }
             }

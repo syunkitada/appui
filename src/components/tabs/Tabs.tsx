@@ -1,5 +1,9 @@
 import "./Tabs.css";
 
+import Dashboard from "../core/Dashboard";
+import Toast from "../toast/Toast";
+import Form from "../form/Form";
+
 import data from "../../data";
 import service from "../../apps/service";
 import locationData from "../../data/locationData";
@@ -14,6 +18,7 @@ export function Render(input: any) {
     const tabsId = `${prefixKey}tabs`;
     const tabClass = `${prefixKey}tab`;
     const tabNameClass = `${prefixKey}tabName`;
+    const tabEditClass = `${prefixKey}tabEdit`;
     const tabCloseClass = `${prefixKey}tabClose`;
     const tabContentId = `${prefixKey}tabContent`;
 
@@ -78,7 +83,8 @@ export function Render(input: any) {
             <a class="tab-name ${tabNameClass}">
               ${tab.Name}
             </a>
-            <a class="tab-btn waves-effect waves-light ${tabCloseClass}"><i class="material-icons">close</i></a>
+            <a class="tab-btn waves-effect waves-light ${tabEditClass}" data-tooltip="Edit Tab"><i class="material-icons">edit</i></a>
+            <a class="tab-btn waves-effect waves-light ${tabCloseClass}" data-tooltip="Close Tab"><i class="material-icons">close</i></a>
           </div>
         </div>`);
     }
@@ -133,7 +139,6 @@ export function Render(input: any) {
         $("#root").off("mouseup").off("mousemove");
         target = $(that).parent().parent();
         const tmpIdx = target.attr("data-idx");
-        console.log("DEBUG tmpIdx", tmpIdx);
         if (!tmpIdx) {
             return;
         }
@@ -218,9 +223,10 @@ export function Render(input: any) {
                             target.html(previousTabHtml).width("auto");
                             previousTab.width(dummy.width());
                             target = previousTab;
+                            const srcIdx = targetIdx;
                             targetIdx = targetIdx - 1;
 
-                            // TODO Switch by SP
+                            switchTab(srcIdx, targetIdx);
                         }
                     } else if (
                         newDummyLeft >
@@ -234,9 +240,10 @@ export function Render(input: any) {
                             target.html(nextTabHtml).width("auto");
                             nextTab.width(dummy.width());
                             target = nextTab;
+                            const srcIdx = targetIdx;
                             targetIdx = targetIdx + 1;
 
-                            // TODO Switch by SP
+                            switchTab(srcIdx, targetIdx);
                         }
                     }
 
@@ -249,6 +256,19 @@ export function Render(input: any) {
             });
     }
 
+    function switchTab(srcIdx: any, targetIdx: any) {
+        const params = {
+            SrcIdx: srcIdx,
+            TargetIdx: targetIdx
+        };
+
+        service.submitQueries({
+            queries: [View.TabSwitchAction],
+            location: location,
+            params: params
+        });
+    }
+
     function initTabs() {
         $(`.${tabNameClass}`)
             .off("mousedown")
@@ -256,14 +276,62 @@ export function Render(input: any) {
                 onMousedown(this, e);
             });
 
-        // Close Tab
-        $(`.${tabCloseClass}`)
+        // Edit Tab
+        $(`.${tabEditClass}`)
+            .tooltip()
             .off("click")
             .on("click", function (e: any) {
                 e.preventDefault();
                 const target = $(this).parent().parent();
                 const tmpIdx = target.attr("data-idx");
+                const tabNames = target.find(`.${tabNameClass}`);
+                if (!tabNames) {
+                    return;
+                }
+                const tabName = $(tabNames[0]);
+                const tabNameDefault = tabName.text().trim();
 
+                Form.Render({
+                    useRootModal: true,
+                    View: {
+                        Name: "Edit Tab Name",
+                        SubmitButtonName: "Edit",
+                        Fields: [
+                            {
+                                Kind: "Text",
+                                Name: "Name",
+                                Default: tabNameDefault,
+                                Required: true
+                            }
+                        ]
+                    },
+                    onSubmit: function (_input: any) {
+                        const params = Object.assign({}, _input.params, {
+                            Idx: tmpIdx
+                        });
+
+                        service.submitQueries({
+                            queries: [View.TabRenameAction],
+                            location: location,
+                            params: params,
+                            onSuccess: function () {
+                                tabName.text(params.Name);
+                                _input.onSuccess();
+                            }
+                        });
+                    }
+                });
+            });
+
+        // Close Tab
+        $(`.${tabCloseClass}`)
+            .tooltip()
+            .off("click")
+            .on("click", function (e: any) {
+                e.preventDefault();
+                $(this).tooltip("destroy");
+                const target = $(this).parent().parent();
+                const tmpIdx = target.attr("data-idx");
                 const params = {
                     Idx: tmpIdx
                 };
@@ -272,7 +340,6 @@ export function Render(input: any) {
                     location: location,
                     params: params,
                     onSuccess: function () {
-                        console.log("DEBUG  onSuccess");
                         const newLocation = Object.assign({}, location);
                         newLocation.Path[pathIndex + 1] = `@0`;
                         newLocation.Params[View.TabParamKey] = `@0`;

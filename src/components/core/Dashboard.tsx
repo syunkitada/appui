@@ -266,6 +266,9 @@ const RootModal = {
     },
     Open: function () {
         $("#dashboard-root-modal").modal("open");
+    },
+    Close: function () {
+        $("#dashboard-root-modal").modal("close");
     }
 };
 

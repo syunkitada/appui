@@ -44,11 +44,11 @@
     float: left;
     border: none;
     cursor: pointer;
-    padding: 2px 8px;
+    padding: 2px 4px;
 }
 
 .tab-btn .material-icons {
-    color: #757575;
+    color: #9e9e9e;
     font-size: 24px;
     line-height: 1.5;
 }
