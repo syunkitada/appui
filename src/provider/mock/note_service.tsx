@@ -180,7 +180,7 @@ function getIndex() {
                                 BaseUrl: "/Home",
                                 IsSearch: true,
                                 Key: "Name",
-                                LinkPath: ["Notes", "Note", "New", "New"],
+                                LinkPath: ["Notes", "Note", "@0", "@0"],
                                 LinkKeyMap: {
                                     Id: "Id",
                                     Name: "Name"

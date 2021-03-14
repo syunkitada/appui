@@ -119,24 +119,23 @@ function setLocationData(obj: any) {
 }
 
 function setLocationJson(key: any, obj: any, isPush: any) {
-    return new Promise(() => {
-        const str = JSON.stringify(obj);
-        const searchParams = new URLSearchParams(window.location.search);
-        searchParams.set(key, str);
-        const paramsStr = searchParams.toString();
-        const link = window.location.pathname + "?" + paramsStr;
-        if (isPush) {
-            window.history.pushState(null, "", link);
-        } else {
-            window.history.replaceState(null, "", link);
-        }
-    });
+    const str = JSON.stringify(obj);
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.set(key, str);
+    const paramsStr = searchParams.toString();
+    const link = window.location.pathname + "?" + paramsStr;
+    if (isPush) {
+        window.history.pushState(null, "", link);
+    } else {
+        window.history.replaceState(null, "", link);
+    }
 }
 
 function getIndex(index: any, path: any): any {
     if (index.Children) {
         for (let i = 0, len = index.Children.length; i < len; i++) {
             const child = index.Children[i];
+            child._childIndex = i;
             if (child.Name !== path[0]) {
                 continue;
             }

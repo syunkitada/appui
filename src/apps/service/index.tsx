@@ -56,6 +56,7 @@ function init() {
             const { serviceName, projectName } = input;
             initLocation = true;
             const location = { Path: ["Root"] };
+            locationData.setLocationData(location);
 
             locationData.setServiceParams(input);
 
