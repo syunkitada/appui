@@ -1,5 +1,5 @@
 export interface IProvider {
-    loginWithToken(input: any): void;
+    init(input: any): void;
     login(input: any): void;
     logout(input: any): void;
     getInitData(input: any): any;

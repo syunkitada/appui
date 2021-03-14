@@ -4,7 +4,7 @@
 
 - 自分用の実験プロジェクトです
 - html や css を定義せずに UI を提供するためのフレームワーク
-- アプリケーション開発者は、ApplicationProvider (AP) を作成するだけ
+- アプリケーション開発者は、ApplicationProvider (AP: TypeScript) を作成するだけ
 - AP は、View の提供、Action のハンドリングを行う
   - View は json で定義された UI の元データ
   - appui は View を元に、html のレンダリングを行う
