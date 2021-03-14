@@ -91,7 +91,7 @@ export function Render(input: any) {
 
     let title = "";
     if (View.Title) {
-        title = `<h4>${converter.formatText(View.Title)}</h4>`;
+        title = `<h1>${converter.formatText(View.Title)}</h1>`;
     }
 
     const actions: any = [];
@@ -151,7 +151,10 @@ export function Render(input: any) {
         });
         $(`#${tabsId}`).append(dummy);
         mouseX = e.clientX;
-        target.width(dummy.width()).height(dummy.height()).html("<div></div>");
+        target
+            .width(dummy.width())
+            .height(dummy.height())
+            .html('<div><a class="tab-name"></a></div>');
 
         $(`#root`)
             .on("mouseup", function () {
@@ -265,7 +268,10 @@ export function Render(input: any) {
         service.submitQueries({
             queries: [View.TabSwitchAction],
             location: location,
-            params: params
+            params: params,
+            onSuccess: function () {
+                return;
+            }
         });
     }
 

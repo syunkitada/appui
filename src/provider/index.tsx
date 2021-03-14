@@ -26,8 +26,8 @@ class Provider {
         return this.data.LoginView;
     }
 
-    loginWithToken(input: any): void {
-        return this.provider.loginWithToken(input);
+    init(input: any): void {
+        return this.provider.init(input);
     }
 
     login(input: any): void {

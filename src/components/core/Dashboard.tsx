@@ -45,17 +45,24 @@ function renderServices(input: any) {
         servicesHtmls.push(projectHtml);
     }
 
-    const tmpServices = Object.keys(tmpServiceMap);
-    tmpServices.sort();
+    const tmpServices = [];
+    for (const key in tmpServiceMap) {
+        const service = tmpServiceMap[key];
+        service.Name = key;
+        tmpServices.push(service);
+    }
+    tmpServices.sort(function (a: any, b: any) {
+        return a.Priority - b.Priority;
+    });
 
     for (const service of tmpServices) {
         let className = "";
-        if (service === serviceName) {
+        if (service.Name === serviceName) {
             className = "dashboard-sidebar-item-active";
         }
         servicesHtmls.push(`
         <li class="dashboard-sidebar-item">
-          <a class="${keyPrefix}-Service ${className}" href="#">${service}</a>
+          <a class="${keyPrefix}-Service ${className}" href="#">${service.Name}</a>
         </li>
         `);
     }
