@@ -1,5 +1,6 @@
 import "./Table.css";
 
+import Dashboard from "../core/Dashboard";
 import Toast from "../toast/Toast";
 import data from "../../data";
 import locationData from "../../data/locationData";
@@ -144,7 +145,9 @@ export function Render(input: any) {
                 buttons.push(`
                   <a class="modal-trigger waves-effect waves-light btn-floating btn-small ${actionButtonClass}" data-action-idx="${i}" data-position="bottom" data-tooltip="${
                     action.Name
-                }" href="#root-modal">${Icon.Html({ kind: action.Icon })}</a>
+                }" href="#${Dashboard.RootModal.GetId()}">${Icon.Html({
+                    kind: action.Icon
+                })}</a>
                 `);
             }
         }
@@ -177,7 +180,9 @@ export function Render(input: any) {
                 buttons.push(`
                   <a class="modal-trigger waves-effect waves-light btn-floating btn-small red lighten-2 ${selectActionButtonClass}" data-action-idx="${i}" data-position="bottom" data-tooltip="${
                     action.Name
-                }" href="#root-modal">${Icon.Html({ kind: action.Icon })}</a>
+                }" href="#${Dashboard.RootModal.GetId()}">${Icon.Html({
+                    kind: action.Icon
+                })}</a>
                 `);
             }
         }

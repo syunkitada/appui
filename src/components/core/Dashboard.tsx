@@ -255,6 +255,9 @@ const RootContentProgress = {
 
 const RootModal = {
     id: "dashboard-root-modal",
+    GetId: function () {
+        return this.id;
+    },
     GetContentId: function () {
         return "dashboard-root-modal-content";
     },
@@ -272,6 +275,9 @@ const RootModal = {
             });
     },
     Open: function () {
+        // Modalの発火点(Trigger)は、<a href="#${Dashboard.RootModal.GetId()}"> でないと、以下のエラーが出るので注意
+        // Uncaught TypeError: Cannot read property 'M_Modal' of null
+        // var i=M.getIdFromTrigger(e[0]),n=document.getElementById(i).M_Modal
         $("#dashboard-root-modal").modal("open");
     },
     Close: function () {
