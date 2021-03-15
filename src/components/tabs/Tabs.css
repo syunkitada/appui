@@ -19,17 +19,15 @@
     border-bottom: 1px solid #fff;
 }
 
-.tab-name {
-    color: rgba(238, 110, 115, 0.7);
-}
-
 .appui-tab.active .tab-name {
     color: #ee6e73;
 }
 
 .tab-name {
+    color: rgba(238, 110, 115, 0.7);
     display: inline-block;
     line-height: 36px;
+    min-width: 150px;
     height: 40px;
     border: none;
     cursor: pointer;

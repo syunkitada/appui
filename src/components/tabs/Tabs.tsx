@@ -18,7 +18,7 @@ export function Render(input: any) {
     const tabsId = `${prefixKey}tabs`;
     const tabClass = `${prefixKey}tab`;
     const tabNameClass = `${prefixKey}tabName`;
-    const tabEditClass = `${prefixKey}tabEdit`;
+    const tabRenameClass = `${prefixKey}tabEdit`;
     const tabCloseClass = `${prefixKey}tabClose`;
     const tabContentId = `${prefixKey}tabContent`;
 
@@ -78,13 +78,25 @@ export function Render(input: any) {
             activeClass = "active";
         }
 
+        let tabRenameButton = "";
+        if (View.TabRenameAction) {
+            tabRenameButton = `<a class="tab-btn waves-effect waves-light ${tabRenameClass}" data-tooltip="Edit Tab">
+            <i class="material-icons">edit</i></a> `;
+        }
+
+        let tabCloseButton = "";
+        if (View.TabCloseAction) {
+            tabCloseButton = `<a class="tab-btn waves-effect waves-light ${tabCloseClass}" data-tooltip="Close Tab">
+            <i class="material-icons">close</i></a>`;
+        }
+
         tabs.push(`<div class="appui-tab ${tabClass} ${activeClass}" data-idx="${i}">
           <div>
             <a class="tab-name ${tabNameClass}">
               ${tab.Name}
             </a>
-            <a class="tab-btn waves-effect waves-light ${tabEditClass}" data-tooltip="Edit Tab"><i class="material-icons">edit</i></a>
-            <a class="tab-btn waves-effect waves-light ${tabCloseClass}" data-tooltip="Close Tab"><i class="material-icons">close</i></a>
+            ${tabRenameButton}
+            ${tabCloseButton}
           </div>
         </div>`);
     }
@@ -143,18 +155,23 @@ export function Render(input: any) {
             return;
         }
         targetIdx = parseInt(tmpIdx);
-        targetPosition = target.position();
-        dummy = $(`<div class="appui-tab dragged">${target.html()}</div>`).css({
-            position: "absolute",
-            top: targetPosition.top,
-            left: targetPosition.left
-        });
-        $(`#${tabsId}`).append(dummy);
-        mouseX = e.clientX;
-        target
-            .width(dummy.width())
-            .height(dummy.height())
-            .html('<div><a class="tab-name"></a></div>');
+
+        if (View.TabSwitchAction) {
+            targetPosition = target.position();
+            dummy = $(
+                `<div class="appui-tab dragged">${target.html()}</div>`
+            ).css({
+                position: "absolute",
+                top: targetPosition.top,
+                left: targetPosition.left
+            });
+            $(`#${tabsId}`).append(dummy);
+            mouseX = e.clientX;
+            target
+                .width(dummy.width())
+                .height(dummy.height())
+                .html('<div><a class="tab-name"></a></div>');
+        }
 
         $(`#root`)
             .on("mouseup", function () {
@@ -164,11 +181,11 @@ export function Render(input: any) {
                     dummy.remove();
                     dummy = null;
                     initTabs();
-
+                }
+                if (target) {
                     // render tab content
                     $(`.${tabClass}`).removeClass("active");
                     target.addClass("active");
-                    target = null;
                     const tabContent = View.Children[targetIdx];
                     tabContent._childIndex = targetIdx;
                     const newLocation = Object.assign({}, location);
@@ -207,11 +224,13 @@ export function Render(input: any) {
                         location: newLocation,
                         view: { id: tabContentId, View: tabContent }
                     });
+
+                    target = null;
                 }
             })
             .on("mousemove", function (e: any) {
                 e.preventDefault();
-                if (dummy && target) {
+                if (target && dummy) {
                     const tmpTargetPosition = target.position();
                     const dummyPosition = dummy.position();
                     const newDummyLeft =
@@ -283,7 +302,7 @@ export function Render(input: any) {
             });
 
         // Edit Tab
-        $(`.${tabEditClass}`)
+        $(`.${tabRenameClass}`)
             .tooltip()
             .off("click")
             .on("click", function (e: any) {
