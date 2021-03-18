@@ -155,11 +155,12 @@ export function Render(input: any) {
             return;
         }
         targetIdx = parseInt(tmpIdx);
+        $(`.${tabClass}`).removeClass("active");
 
         if (View.TabSwitchAction) {
             targetPosition = target.position();
             dummy = $(
-                `<div class="appui-tab dragged">${target.html()}</div>`
+                `<div class="appui-tab dragged active">${target.html()}</div>`
             ).css({
                 position: "absolute",
                 top: targetPosition.top,
@@ -184,7 +185,6 @@ export function Render(input: any) {
                 }
                 if (target) {
                     // render tab content
-                    $(`.${tabClass}`).removeClass("active");
                     target.addClass("active");
                     const tabContent = View.Children[targetIdx];
                     tabContent._childIndex = targetIdx;

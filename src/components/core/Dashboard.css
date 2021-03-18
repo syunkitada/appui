@@ -13,17 +13,17 @@ code {
 }
 
 h1 {
-    font-size: 2.92rem;
+    font-size: 2.28rem;
     margin: 1.1rem 0 1rem 0;
 }
 
 h2 {
-    font-size: 2.28rem;
+    font-size: 1.64rem;
     margin: 0px;
 }
 
 h3 {
-    font-size: 1.64rem;
+    font-size: 1.15rem;
     margin: 0px;
 }
 
@@ -74,7 +74,7 @@ nav i.material-icons {
     font-size: 1.6rem;
     padding: 0px 10px 0px 10px;
     display: inline-block;
-    width: 100px;
+    width: 185px;
     color: #333;
 }
 
@@ -85,8 +85,12 @@ nav i.material-icons {
 }
 
 #dashboard-content-wrapper {
-    margin-left: 0px;
+    margin-left: 240px;
     padding: 50px 8px 8px 8px;
+}
+
+#dashboard-content-wrapper.toggled {
+    margin-left: 0px;
 }
 
 #dashboard-menu-toggle {
@@ -94,7 +98,7 @@ nav i.material-icons {
 }
 
 #dashboard-sidebar-wrapper {
-    width: 0px;
+    width: 240px;
     margin-top: 50px;
     position: fixed;
     overflow-y: auto;
@@ -106,7 +110,7 @@ nav i.material-icons {
 }
 
 #dashboard-sidebar-wrapper.toggled {
-    width: 240px;
+    width: 0px;
 }
 
 #dashboard-sidebar-wrapper .input-field {
@@ -151,7 +155,7 @@ nav i.material-icons {
 }
 
 #dashboard-nav-breadcrumb {
-    display: none;
+    display: inline-block;
     margin-left: 0px;
 }
 
@@ -159,28 +163,25 @@ nav i.material-icons {
     padding-bottom: 5px;
 }
 
-@media (min-width: 768px) {
+/* if width <= 767px */
+@media (max-width: 767px) {
     #dashboard-sidebar-wrapper {
-        width: 240px;
-    }
-
-    #dashboard-sidebar-wrapper.toggled {
         width: 0px;
     }
 
-    #dashboard-content-wrapper {
-        margin-left: 240px;
+    #dashboard-sidebar-wrapper.toggled {
+        width: 240px;
     }
 
-    #dashboard-content-wrapper.toggled {
+    #dashboard-content-wrapper {
         margin-left: 0px;
     }
 
     #dashboard-nav-logo {
-        width: 185px;
+        width: 100px;
     }
 
     #dashboard-nav-breadcrumb {
-        display: inline-block;
+        display: none;
     }
 }

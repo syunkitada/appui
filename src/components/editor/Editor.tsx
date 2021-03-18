@@ -51,14 +51,15 @@ export function Render(input: any) {
 
     $(`#${id}`).html(`
     <div class="row">
-      <div class="col m6">
+      <div class="col m6 s12 editor-output" id="${textId}">
+      </div>
+      <div class="col m6 s12 editor-input">
+        <hr class="editor-hr" />
         <div class="row">
           <div class="input-field col s12">
             <textarea id="${inputId}" class="materialize-textarea">${textData}</textarea>
           </div>
         </div>
-      </div>
-      <div class="col m6" id="${textId}">
       </div>
     </div>
     `);
