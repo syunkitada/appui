@@ -16,6 +16,8 @@ export function Render(input: any) {
     const { id, View } = input;
     const prefixKey = `${id}-`;
     const textId = `${prefixKey}Text`;
+    const navId = `${prefixKey}Nav`;
+    const scrollSpyClass = `${prefixKey}ScrollSpy`;
 
     const md = new MarkdownIt({
         highlight: function (str, lang) {
@@ -49,13 +51,64 @@ export function Render(input: any) {
 
     $(`#${id}`).html(`
     <div class="row text" style="padding: 0 5px">
-      <div class="col s12" id="${textId}">
+      <div class="col s9 text-content" id="${textId}">
+      </div>
+      <div class="col s3 text-nav">
+        <ul id="${navId}" class="section table-of-contents">
+        </ul>
       </div>
     </div>
     `);
 
-    $(`#${textId}`).html(md.render(textData));
+    // hide for rerendering
+    $(`#${textId}`).html(md.render(textData)).hide();
+
+    const navs = [];
+    const contents = [];
+    let header: any = null;
+    let content: any = [];
+    const children = $(`#${textId}`).children();
+    for (let i = 0, len = children.length; i < len; i++) {
+        const child = children[i];
+        if (child.nodeName === "H2") {
+            if (header) {
+                const id = encodeURI(header.text());
+                contents.push(
+                    `<div id="${id}" class="section ${scrollSpyClass}">${content.join(
+                        ""
+                    )}</div>`
+                );
+                navs.push(`<li><a href="#${id}">${header.text()}</a></li>`);
+                content = [child.outerHTML];
+            } else {
+                content.push(child.outerHTML);
+            }
+            header = $(child);
+        } else {
+            content.push(child.outerHTML);
+        }
+    }
+    if (content.length > 0) {
+        if (header) {
+            const id = encodeURI(header.text());
+            header.attr("id", id);
+            contents.push(
+                `<div id="${id}" class="section ${scrollSpyClass}">${content.join(
+                    ""
+                )}</div>`
+            );
+            navs.push(`<li><a href="#${id}">${header.text()}</a></li>`);
+        } else {
+            contents.push(`<div class="section">${content.join("")}</div>`);
+        }
+    }
+
+    $(`#${textId}`).html(contents.join(""));
     Prism.highlightAll();
+    $(`#${textId}`).show();
+
+    $(`#${navId}`).html(navs.join(""));
+    $(`.${scrollSpyClass}`).scrollSpy();
 }
 
 const index = {

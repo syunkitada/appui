@@ -1,16 +1,3 @@
-.text ul {
-    list-style-type: disc;
-    padding-left: 2em;
-}
-
-.text ul > li {
-    list-style-type: inherit;
-}
-
-.text ul > li > ul li {
-    list-style-type: circle;
-}
-
 .editor-hr {
     display: none;
     border-top: 1px solid rgba(246, 178, 181, 0.9);

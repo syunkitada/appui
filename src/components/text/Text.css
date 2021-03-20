@@ -1,12 +1,23 @@
-.text ul {
+.text-content ul {
     list-style-type: disc;
     padding-left: 2em;
 }
 
-.text ul > li {
+.text-content ul > li {
     list-style-type: inherit;
 }
 
-.text ul > li > ul li {
+.text-content ul > li > ul li {
     list-style-type: circle;
+}
+
+.text-nav {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 50px;
+}
+
+.text-nav li > a {
+    overflow-wrap: break-word;
+    width: 100%;
 }
