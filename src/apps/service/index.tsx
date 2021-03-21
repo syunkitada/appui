@@ -21,7 +21,14 @@ function init() {
     function getServiceIndexOnSuccess(input: any) {
         const { index } = input;
         if (initLocation && index.DefaultRoute.Path) {
-            location.Path = index.DefaultRoute.Path;
+            const location = {
+                Path: index.DefaultRoute.Path,
+                DataQueries: [],
+                SearchQueries: {},
+                WebSocketQuery: {},
+                Params: {},
+                ViewParams: {}
+            };
             locationData.setLocationData(location);
         }
 
@@ -55,9 +62,6 @@ function init() {
         onClickService: function (input: any) {
             const { serviceName, projectName } = input;
             initLocation = true;
-            const location = { Path: ["Root"] };
-            locationData.setLocationData(location);
-
             locationData.setServiceParams(input);
 
             Dashboard.RootContentProgress.StartProgress();

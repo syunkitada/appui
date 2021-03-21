@@ -1,4 +1,5 @@
 import locationData from "../../data/locationData";
+import service from "../../apps/service";
 
 export function Render(input: any) {
     const { id, View, onSubmit } = input;
@@ -12,10 +13,14 @@ export function Render(input: any) {
     const timepickerClass = `${keyPrefix}timepicker`;
 
     const inputs: any[] = [];
-    for (let i = 0, len = View.Inputs.length; i < len; i++) {
-        const input = View.Inputs[i];
-        const searchQueryValue = location.SearchQueries[input.Name];
-        switch (input.Type) {
+    for (let i = 0, len = View.Fields.length; i < len; i++) {
+        const fieldId = `${keyPrefix}field${i}`;
+        const input = View.Fields[i];
+        let searchQueryValue: any = null;
+        if (location.SearchQueries) {
+            searchQueryValue = location.SearchQueries[input.Name];
+        }
+        switch (input.Kind) {
             case "Select":
                 let options = [];
                 for (let i = 0, len = input.Data.length; i < len; i++) {
@@ -41,8 +46,8 @@ export function Render(input: any) {
             case "Text":
                 inputs.push(`
                 <div class="input-field col m6">
-                    <input id="first_name2" class="${inputClass}" type="text" class="validate">
-                        <label for="first_name2">First Name</label>
+                    <input id="${fieldId}" class="${inputClass}" type="text" class="validate" name="${input.Name}">
+                        <label for="${fieldId}">${input.Name}</label>
                     </input>
                 </div>
                 `);
@@ -72,7 +77,7 @@ export function Render(input: any) {
                 `);
                 break;
             default:
-                inputs.push(`<span>UnknownInput: ${input.Type}</span>`);
+                inputs.push(`<span>UnknownInput: ${input.Kind}</span>`);
         }
     }
 
@@ -137,7 +142,18 @@ export function Render(input: any) {
                 searchQueries[name] = val;
             }
         }
-        onSubmit({ searchQueries });
+
+        if (onSubmit) {
+            onSubmit({ searchQueries });
+        } else if (View.LinkPath) {
+            console.log("DEBUG LinkPath");
+            const newLocation = {
+                Path: View.LinkPath,
+                Params: searchQueries,
+                SearchQueries: {}
+            };
+            service.getQueries({ location: newLocation });
+        }
     });
 
     $(`.${datepickerClass}`).datepicker({

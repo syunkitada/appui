@@ -19,6 +19,11 @@ function init() {
             Toast.Error(input);
         }
     });
+
+    window.onpopstate = function (e: any) {
+        logger.info("onpopstate", e);
+        service.init();
+    };
 }
 
 function login(input: any) {

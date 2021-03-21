@@ -9,11 +9,14 @@ import "prismjs/plugins/toolbar/prism-toolbar.min.js";
 import "prismjs/plugins/toolbar/prism-toolbar.css";
 import "prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js";
 
+import locationData from "../../data/locationData";
+import service from "../../apps/service";
 import logger from "../../lib/logger";
 import data from "../../data";
 
 export function Render(input: any) {
     const { id, View } = input;
+    const location = locationData.getLocationData();
     const prefixKey = `${id}-`;
     const textId = `${prefixKey}Text`;
     const navId = `${prefixKey}Nav`;
@@ -49,7 +52,7 @@ export function Render(input: any) {
         return;
     }
 
-    $(`#${id}`).html(`
+    $(`#${id}`).hide().html(`
     <div class="row text" style="padding: 0 5px">
       <div class="col s9 text-content" id="${textId}">
       </div>
@@ -60,8 +63,7 @@ export function Render(input: any) {
     </div>
     `);
 
-    // hide for rerendering
-    $(`#${textId}`).html(md.render(textData)).hide();
+    $(`#${textId}`).html(md.render(textData));
 
     const navs = [];
     const contents = [];
@@ -105,10 +107,17 @@ export function Render(input: any) {
 
     $(`#${textId}`).html(contents.join(""));
     Prism.highlightAll();
-    $(`#${textId}`).show();
 
     $(`#${navId}`).html(navs.join(""));
     $(`.${scrollSpyClass}`).scrollSpy();
+
+    if (View.OnRenderLast) {
+        View.OnRenderLast({
+            textId
+        });
+    }
+
+    $(`#${id}`).show();
 }
 
 const index = {

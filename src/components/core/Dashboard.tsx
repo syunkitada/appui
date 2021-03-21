@@ -104,7 +104,9 @@ function Render(input: any) {
     const keyPrefix = `${input.id}-Dashboard-`;
     const servicesId = `${keyPrefix}Services`;
 
-    const logo = provider.getLogo();
+    const view = provider.getDashboardView({});
+
+    const logo = view.Logo;
     let logoHtml = "";
     switch (logo.Kind) {
         case "Text":
@@ -115,27 +117,65 @@ function Render(input: any) {
             break;
     }
 
+    const headerNavs: any = [];
+    if (view.Logout) {
+        headerNavs.push(
+            `<li><a href="#!" id="dashboard-logout">Log out</a></li>`
+        );
+    }
+
+    const rightNavs: any = [];
+    if (view.SearchForm) {
+        rightNavs.push(`
+        <li id="dashboard-search-form">
+          <i id="dashboard-search-input-icon" class="material-icons">search</i>
+          <input id="dashboard-search-input" type="text" />
+          <div id="dashboard-search-card" class="card">
+            <a href="">
+            <div class="row">
+                <div class="col s4"><div class="search-key">text</div></div>
+                <div class="col s8"><div class="search-value">detail</div></div>
+            </div></a>
+            <a href="">
+            <div class="row">
+                <div class="col s4"><div class="search-key">text</div></div>
+                <div class="col s8"><div class="search-value">detail</div></div>
+            </div>
+            </a>
+          </div>
+        </li>`);
+    }
+
+    if (headerNavs.length > 0) {
+        rightNavs.push(
+            `<li><a class="dropdown-trigger" href="#!" data-target="dashboard-dropdown">${Name} <i class="material-icons right">arrow_drop_down</i></a></li>`
+        );
+    } else {
+        rightNavs.push(`<li><a>${Name}</a></li>`);
+    }
+
     $(`#${id}`).html(`
     <ul id="dashboard-dropdown" class="dropdown-content">
-      <li><a href="#!" id="dashboard-logout">Log out</a></li>
+      ${headerNavs.join("")}
     </ul>
 
     <nav id="dashboard-nav-header">
-      <div class="nav-wrapper">
-        <ul class="left">
-          <li><a href="#!" id="dashboard-menu-toggle"><i class="material-icons">menu</i></a></li>
-          <li><a href="#!" id="dashboard-nav-logo">${logoHtml}</a></li>
-        </ul>
+      <div class="nav-wrapper row">
+        <div class="col s12">
+            <ul>
+              <li><a href="#!" id="dashboard-menu-toggle"><i class="material-icons">menu</i></a></li>
+              <li><a href="#!" id="dashboard-nav-logo">${logoHtml}</a></li>
+            </ul>
 
-        <div id="dashboard-nav-breadcrumb" class="nav-wrapper">
-          <div id="dashboard-nav-path" class="col s12">
-          </div>
+            <div id="dashboard-nav-breadcrumb" class="nav-wrapper" style="display: inline-block;">
+              <div id="dashboard-nav-path">
+              </div>
+            </div>
+
+            <ul class="right" style="display: inline-flex;">
+                ${rightNavs.join("")}
+            </ul>
         </div>
-
-        <ul class="right">
-          <li><a class="dropdown-trigger" href="#!" data-target="dashboard-dropdown">${Name} <i class="material-icons right">arrow_drop_down</i></a></li>
-        </ul>
-
         <div id="dashboard-root-content-progress" class="progress" style="display: none;">
           <div class="determinate" style="width: 0%"></div>
         </div>
@@ -163,6 +203,21 @@ function Render(input: any) {
     `);
 
     $("#dashboard-root-modal").modal();
+
+    // $("#dashboard-search-card").hide();
+    function onInput(val: any) {
+        $("#dashboard-search-card").show();
+        console.log("DEBUG");
+    }
+    $("#dashboard-search-input")
+        .on("blur", function () {
+            $("#dashboard-search-card").hide();
+        })
+        .on("keydown", function () {
+            $("#dashboard-search-card").show();
+            const val = $(this).val();
+            onInput($(this).val());
+        });
 
     renderServices(
         Object.assign({}, input, {

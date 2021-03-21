@@ -18,12 +18,12 @@ class Provider {
         return this.data.DefaultProjectServiceName;
     }
 
-    getLogo(): any {
-        return this.data.Logo;
-    }
-
     getLoginView(input: any): any {
         return this.data.LoginView;
+    }
+
+    getDashboardView(input: any): any {
+        return this.data.DashboardView;
     }
 
     init(input: any): void {
