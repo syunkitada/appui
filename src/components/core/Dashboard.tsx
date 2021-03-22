@@ -130,18 +130,7 @@ function Render(input: any) {
         <li id="dashboard-search-form">
           <i id="dashboard-search-input-icon" class="material-icons">search</i>
           <input id="dashboard-search-input" type="text" />
-          <div id="dashboard-search-card" class="card">
-            <a href="">
-            <div class="row">
-                <div class="col s4"><div class="search-key">text</div></div>
-                <div class="col s8"><div class="search-value">detail</div></div>
-            </div></a>
-            <a href="">
-            <div class="row">
-                <div class="col s4"><div class="search-key">text</div></div>
-                <div class="col s8"><div class="search-value">detail</div></div>
-            </div>
-            </a>
+          <div id="dashboard-search-card">
           </div>
         </li>`);
     }
@@ -204,19 +193,57 @@ function Render(input: any) {
 
     $("#dashboard-root-modal").modal();
 
-    // $("#dashboard-search-card").hide();
-    function onInput(val: any) {
+    $("#dashboard-search-card").hide();
+    function onChange(val: any) {
         $("#dashboard-search-card").show();
-        console.log("DEBUG");
+        view.SearchForm.onChange({
+            val: val,
+            onSuccess: function (_input: any) {
+                const { Results } = _input;
+                const htmls = [];
+                for (let i = 0, len = Results.length; i < len; i++) {
+                    const result = Results[i];
+                    htmls.push(`
+                    <a class="dashboard-search-result" href="#">
+                      <div class="row">
+                        <div class="col s4 search-key" style="overflow-wrap: break-word;">${result.Key}</div>
+                        <div class="col s4 search-value" style="overflow-wrap: break-word;">${result.Value}</div>
+                      </div>
+                    </a>
+                    `);
+                }
+
+                $("#dashboard-search-card").html(htmls.join(""));
+                $(".dashboard-search-result")
+                    .off("click")
+                    .on("click", function (e: any) {
+                        e.preventDefault();
+                        const key = $(this).find(".search-key").text();
+                        const params: any = { Key: key };
+                        const newLocation = {
+                            Path: view.SearchForm.LinkPath,
+                            Params: params,
+                            SearchQueries: {}
+                        };
+                        service.getQueries({ location: newLocation });
+                        $("#dashboard-search-card").hide();
+                    });
+            }
+        });
     }
+
     $("#dashboard-search-input")
-        .on("blur", function () {
-            $("#dashboard-search-card").hide();
+        .on("focusout", function () {
+            console.log("focusout");
         })
-        .on("keydown", function () {
+        .on("blur", function () {
+            console.log("blur");
+            // $("#dashboard-search-card").hide();
+        })
+        .on("keyup", function () {
             $("#dashboard-search-card").show();
             const val = $(this).val();
-            onInput($(this).val());
+            onChange($(this).val());
         });
 
     renderServices(
