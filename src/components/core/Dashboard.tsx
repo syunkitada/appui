@@ -207,7 +207,7 @@ function Render(input: any) {
                     <a class="dashboard-search-result" href="#">
                       <div class="row">
                         <div class="col s4 search-key" style="overflow-wrap: break-word;">${result.Key}</div>
-                        <div class="col s4 search-value" style="overflow-wrap: break-word;">${result.Value}</div>
+                        <div class="col s8 search-value" style="overflow-wrap: break-word;">${result.Value}</div>
                       </div>
                     </a>
                     `);
