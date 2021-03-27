@@ -193,7 +193,40 @@ function Render(input: any) {
 
     $("#dashboard-root-modal").modal();
 
-    $("#dashboard-search-card").hide();
+    function hideDashboardSearchCard() {
+        $("#dashboard-search-card").hide();
+        $(window).off("click");
+    }
+
+    function showDashboardSearchCard() {
+        $("#dashboard-search-card").show();
+        $(window)
+            .off("click")
+            .on("click", function (e: any) {
+                const searchForm = $(e.target).closest(
+                    "#dashboard-search-form"
+                );
+                if (searchForm.length == 0) {
+                    hideDashboardSearchCard();
+                }
+            });
+    }
+
+    function forwardLink(that: any) {
+        const key = that.attr("data-key");
+        if (key) {
+            const params: any = { Key: key };
+            const newLocation = {
+                Path: view.SearchForm.LinkPath,
+                Params: params,
+                SearchQueries: {}
+            };
+            service.getQueries({ location: newLocation });
+            hideDashboardSearchCard();
+        }
+    }
+
+    hideDashboardSearchCard();
     function onChange(val: any) {
         $("#dashboard-search-card").show();
         view.SearchForm.onChange({
@@ -204,7 +237,7 @@ function Render(input: any) {
                 for (let i = 0, len = Results.length; i < len; i++) {
                     const result = Results[i];
                     htmls.push(`
-                    <a class="dashboard-search-result" href="#">
+                    <a class="dashboard-search-result" href="#" data-key="${result.Key}">
                       <div class="row">
                         <div class="col s4 search-key" style="overflow-wrap: break-word;">${result.Key}</div>
                         <div class="col s8 search-value" style="overflow-wrap: break-word;">${result.Value}</div>
@@ -218,32 +251,59 @@ function Render(input: any) {
                     .off("click")
                     .on("click", function (e: any) {
                         e.preventDefault();
-                        const key = $(this).find(".search-key").text();
-                        const params: any = { Key: key };
-                        const newLocation = {
-                            Path: view.SearchForm.LinkPath,
-                            Params: params,
-                            SearchQueries: {}
-                        };
-                        service.getQueries({ location: newLocation });
-                        $("#dashboard-search-card").hide();
+                        forwardLink($(this));
                     });
             }
         });
     }
 
+    let searchInputVal = "";
+    let searchResultPosition = 0;
+    function searchInputOnChange(e: any, that: any) {
+        showDashboardSearchCard();
+        let isEnter = false;
+        switch (e.key) {
+            case "ArrowDown":
+                searchResultPosition += 1;
+                break;
+            case "ArrowUp":
+                searchResultPosition -= 1;
+                break;
+            case "Enter":
+                isEnter = true;
+                break;
+            default:
+                break;
+        }
+        if (isEnter) {
+            const searchResults = $(".dashboard-search-result");
+            forwardLink($(searchResults[searchResultPosition]));
+            return;
+        }
+
+        const val = that.val();
+        if (searchInputVal != val) {
+            const searchResults = $(".dashboard-search-result");
+            onChange(val);
+        }
+
+        const searchResults = $(".dashboard-search-result");
+        const lenResults = searchResults.length;
+        if (searchResultPosition < 0) {
+            searchResultPosition = 0;
+        } else if (searchResultPosition >= lenResults) {
+            searchResultPosition = lenResults - 1;
+        }
+        searchResults.removeClass("active");
+        $(searchResults[searchResultPosition]).addClass("active");
+    }
+
     $("#dashboard-search-input")
-        .on("focusout", function () {
-            console.log("focusout");
+        .on("focusin", function (e: any) {
+            searchInputOnChange(e, $(this));
         })
-        .on("blur", function () {
-            console.log("blur");
-            // $("#dashboard-search-card").hide();
-        })
-        .on("keyup", function () {
-            $("#dashboard-search-card").show();
-            const val = $(this).val();
-            onChange($(this).val());
+        .on("keyup", function (e: any) {
+            searchInputOnChange(e, $(this));
         });
 
     renderServices(
@@ -282,6 +342,28 @@ function Render(input: any) {
 const NavPath = {
     Render: function (input: any) {
         const { location } = input;
+        const view = provider.getDashboardView({});
+        if (view.GetNavs && view.OnClickNav) {
+            const navs = view.GetNavs(input);
+            const navHtmls: any[] = [];
+            for (let i = 0, len = navs.length; i < len; i++) {
+                const nav = navs[i];
+                navHtmls.push(`
+                <a href="#!" class="breadcrumb dashboard-nav-path-link" data-path="${nav.path}">${nav.name}</a>
+                `);
+            }
+            $("#dashboard-nav-path").html(navHtmls.join(""));
+            $(".dashboard-nav-path-link")
+                .off("click")
+                .on("click", function (e: any) {
+                    e.preventDefault();
+                    const dataPath = $(this).attr("data-path");
+                    if (dataPath) {
+                        view.OnClickNav({ dataPath, location });
+                    }
+                });
+            return;
+        }
         const navs: any[] = [];
         let parents: any[] = [];
         for (let i = 0, len = location.Path.length; i < len; i++) {
