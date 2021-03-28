@@ -124,13 +124,21 @@ function Render(input: any) {
         );
     }
 
+    const exNavs: any = [];
     const rightNavs: any = [];
     if (view.SearchForm) {
         rightNavs.push(`
-        <li id="dashboard-search-form">
-          <i id="dashboard-search-input-icon" class="material-icons">search</i>
-          <input id="dashboard-search-input" type="text" />
-          <div id="dashboard-search-card">
+        <li class="dashboard-search-form">
+          <i class="dashboard-search-input-icon material-icons">search</i>
+          <input class="dashboard-search-input" type="text" />
+          <div class="dashboard-search-card">
+          </div>
+        </li>`);
+        exNavs.push(`
+        <li class="dashboard-search-form toggled">
+          <i class="dashboard-search-input-icon material-icons">search</i>
+          <input class="dashboard-search-input" type="text" />
+          <div class="dashboard-search-card">
           </div>
         </li>`);
     }
@@ -150,15 +158,15 @@ function Render(input: any) {
 
     <nav id="dashboard-nav-header">
       <div class="nav-wrapper row">
-        <div class="col s12">
+        <div class="col s12" style="padding: 0px;">
             <ul>
               <li><a href="#!" id="dashboard-menu-toggle"><i class="material-icons">menu</i></a></li>
               <li><a href="#!" id="dashboard-nav-logo">${logoHtml}</a></li>
+              <li><a href="#!" id="dashboard-nav-header-ex-toggle"><i class="material-icons">keyboard_arrow_down</i></a></li>
             </ul>
 
-            <div id="dashboard-nav-breadcrumb" class="nav-wrapper" style="display: inline-block;">
-              <div id="dashboard-nav-path">
-              </div>
+            <div id="dashboard-nav-breadcrumb" class="nav-wrapper">
+              <div id="dashboard-nav-path"></div>
             </div>
 
             <ul class="right" style="display: inline-flex;">
@@ -167,6 +175,17 @@ function Render(input: any) {
         </div>
         <div id="dashboard-root-content-progress" class="progress" style="display: none;">
           <div class="determinate" style="width: 0%"></div>
+        </div>
+      </div>
+      <div class="nav-wrapper row" id="dashboard-nav-header-ex">
+        <div class="col s12 dashboard-nav-header-ex-col">
+          <div id="dashboard-nav-breadcrumb-ex" class="nav-wrapper">
+            <div id="dashboard-nav-path-ex">
+            </div>
+          </div>
+        </div>
+        <div class="col s12 dashboard-nav-header-ex-col">
+            <ul id="dashboard-exnavs">${exNavs.join("")}</ul>
         </div>
       </div>
     </nav>
@@ -188,23 +207,29 @@ function Render(input: any) {
           <a href="#!" id="dashboard-root-modal-submit-button" class="waves-effect waves-light btn right">Submit</a>
         </div>
       </div>
+
+      <div id="dashboard-tap-menu-wrapper">
+        <div id="dashboard-tap-menu"></div>
+        <a id="dashboard-tap-menu-toggle-button" class="btn-floating btn-large waves-effect waves-light right">
+            <i class="material-icons">more_vert</i></a>
+      </div>
     </div>
     `);
 
     $("#dashboard-root-modal").modal();
 
     function hideDashboardSearchCard() {
-        $("#dashboard-search-card").hide();
+        $(".dashboard-search-card").hide();
         $(window).off("click");
     }
 
     function showDashboardSearchCard() {
-        $("#dashboard-search-card").show();
+        $(".dashboard-search-card").show();
         $(window)
             .off("click")
             .on("click", function (e: any) {
                 const searchForm = $(e.target).closest(
-                    "#dashboard-search-form"
+                    ".dashboard-search-form"
                 );
                 if (searchForm.length == 0) {
                     hideDashboardSearchCard();
@@ -228,7 +253,7 @@ function Render(input: any) {
 
     hideDashboardSearchCard();
     function onChange(val: any) {
-        $("#dashboard-search-card").show();
+        $(".dashboard-search-card").show();
         view.SearchForm.onChange({
             val: val,
             onSuccess: function (_input: any) {
@@ -246,7 +271,7 @@ function Render(input: any) {
                     `);
                 }
 
-                $("#dashboard-search-card").html(htmls.join(""));
+                $(".dashboard-search-card").html(htmls.join(""));
                 $(".dashboard-search-result")
                     .off("click")
                     .on("click", function (e: any) {
@@ -298,7 +323,7 @@ function Render(input: any) {
         $(searchResults[searchResultPosition]).addClass("active");
     }
 
-    $("#dashboard-search-input")
+    $(".dashboard-search-input")
         .on("focusin", function (e: any) {
             searchInputOnChange(e, $(this));
         })
@@ -332,8 +357,18 @@ function Render(input: any) {
         $("#dashboard-content-wrapper").toggleClass("toggled");
     });
 
+    $("#dashboard-nav-header-ex-toggle").on("click", function (e) {
+        e.preventDefault();
+        $("#dashboard-nav-header-ex").toggleClass("toggled");
+    });
+
     $("#dashboard-logout").on("click", function () {
         input.logout();
+    });
+
+    $("#dashboard-tap-menu-toggle-button").on("click", function (e) {
+        e.preventDefault;
+        $("#dashboard-tap-menu").toggleClass("toggled");
     });
 
     return;
@@ -353,6 +388,7 @@ const NavPath = {
                 `);
             }
             $("#dashboard-nav-path").html(navHtmls.join(""));
+            $("#dashboard-nav-path-ex").html(navHtmls.join(""));
             $(".dashboard-nav-path-link")
                 .off("click")
                 .on("click", function (e: any) {
@@ -449,10 +485,19 @@ const RootModal = {
     }
 };
 
+const RightBottomMenu = {
+    Render: function (input: any) {
+        const { html } = input;
+        $("#dashboard-tap-menu").html(html);
+        $("#dashboard-tap-menu-toggle-button").show();
+    }
+};
+
 const index = {
     Render,
     NavPath,
     RootContentProgress,
-    RootModal
+    RootModal,
+    RightBottomMenu
 };
 export default index;

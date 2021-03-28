@@ -9,6 +9,7 @@ import "prismjs/plugins/toolbar/prism-toolbar.min.js";
 import "prismjs/plugins/toolbar/prism-toolbar.css";
 import "prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js";
 
+import Dashboard from "../core/Dashboard";
 import locationData from "../../data/locationData";
 import service from "../../apps/service";
 import logger from "../../lib/logger";
@@ -54,11 +55,9 @@ export function Render(input: any) {
 
     $(`#${id}`).hide().html(`
     <div class="row text" style="padding: 0 5px">
-      <div class="col s9 text-content" id="${textId}">
+      <div class="col m9 s12 text-content" id="${textId}">
       </div>
-      <div class="col s3 text-nav">
-        <ul id="${navId}" class="section table-of-contents">
-        </ul>
+      <div id="${navId}" class="col m3 s11 text-nav">
       </div>
     </div>
     `);
@@ -108,7 +107,11 @@ export function Render(input: any) {
     $(`#${textId}`).html(contents.join(""));
     Prism.highlightAll();
 
-    $(`#${navId}`).html(navs.join(""));
+    const navsHtml = `<ul class="section table-of-contents text-right-menu">${navs.join(
+        ""
+    )}</ul>`;
+    $(`#${navId}`).html(navsHtml);
+    Dashboard.RightBottomMenu.Render({ html: navsHtml });
     $(`.${scrollSpyClass}`).scrollSpy();
 
     if (View.OnRenderLast) {

@@ -21,3 +21,15 @@
     overflow-wrap: break-word;
     width: 100%;
 }
+
+/* if width <= 767px */
+@media (max-width: 767px) {
+    .text-nav {
+        display: none;
+    }
+
+    .text-right-menu {
+        margin: 0px;
+        padding: 10px;
+    }
+}
