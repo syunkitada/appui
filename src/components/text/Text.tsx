@@ -14,6 +14,7 @@ import locationData from "../../data/locationData";
 import service from "../../apps/service";
 import logger from "../../lib/logger";
 import data from "../../data";
+import converter from "../../lib/converter";
 
 export function Render(input: any) {
     const { id, View } = input;
@@ -36,11 +37,9 @@ export function Render(input: any) {
                     tmpLang = "clike";
                     break;
             }
-            return (
-                `<pre class="language-${tmpLang}"><code class="language-${tmpLang}">` +
-                str +
-                "</code></pre>"
-            );
+            return `<pre class="language-${tmpLang}"><code class="language-${tmpLang}">${converter.escapeHtml(
+                str
+            )}</code></pre>`;
         }
     });
 
@@ -48,13 +47,23 @@ export function Render(input: any) {
     if (!textData) {
         textData = data.service.data[View.DataKey];
     }
-    if (!textData) {
+    if (!textData || !textData.Text) {
         $(`#${id}`).html("NoData");
         return;
     }
 
+    let tagHeader = "";
+    if (textData.UpdatedAt) {
+        tagHeader += `
+      <div class="col m9 s12 text-tag-header">
+        Updated At: ${converter.formatDate(textData.UpdatedAt)}
+      </div>
+      `;
+    }
+
     $(`#${id}`).hide().html(`
     <div class="row text" style="padding: 0 5px">
+      ${tagHeader}
       <div class="col m9 s12 text-content" id="${textId}">
       </div>
       <div id="${navId}" class="col m3 s11 text-nav">
@@ -62,7 +71,7 @@ export function Render(input: any) {
     </div>
     `);
 
-    $(`#${textId}`).html(md.render(textData));
+    $(`#${textId}`).html(md.render(textData.Text));
 
     const navs = [];
     const contents = [];

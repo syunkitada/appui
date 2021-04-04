@@ -7,30 +7,26 @@ import locationData from "../../data/locationData";
 import Index from "../../components/Index";
 import logger from "../../lib/logger";
 
-function init() {
-    const { serviceName, projectName } = locationData.getServiceParams();
-
-    let location = { Path: ["Root"] };
-    const tmpLocationData = locationData.getLocationData();
-    let initLocation = true;
-    if (tmpLocationData.Path) {
-        location = tmpLocationData;
-        initLocation = false;
-    }
+function getServiceIndex(input: any) {
+    let { location, serviceName, projectName } = input;
 
     function getServiceIndexOnSuccess(input: any) {
         const { index } = input;
-        if (initLocation && index.DefaultRoute.Path) {
-            const location = {
-                Path: index.DefaultRoute.Path,
+        if (!location) {
+            let path = ["Root"];
+            if (index.DefaultRoute.Path) {
+                path = index.DefaultRoute.Path;
+            }
+            location = {
+                Path: path,
                 DataQueries: [],
                 SearchQueries: {},
                 WebSocketQuery: {},
                 Params: {},
                 ViewParams: {}
             };
-            locationData.setLocationData(location);
         }
+        locationData.setLocationData(location);
 
         data.service = {
             rootView: index.View,
@@ -56,27 +52,7 @@ function init() {
         Dashboard.RootContentProgress.StopProgress();
     }
 
-    Dashboard.Render({
-        id: "root",
-        logout: auth.logout,
-        onClickService: function (input: any) {
-            const { serviceName, projectName } = input;
-            initLocation = true;
-            locationData.setServiceParams(input);
-
-            Dashboard.RootContentProgress.StartProgress();
-            provider.getServiceIndex({
-                serviceName,
-                projectName,
-                location,
-                onSuccess: getServiceIndexOnSuccess,
-                onError: function (input: any) {
-                    logger.error("service.init.onClickService.onError", input);
-                    Toast.Error(input);
-                }
-            });
-        }
-    });
+    locationData.setServiceParams(input);
 
     Dashboard.RootContentProgress.StartProgress();
     provider.getServiceIndex({
@@ -85,10 +61,47 @@ function init() {
         location,
         onSuccess: getServiceIndexOnSuccess,
         onError: function (input: any) {
-            logger.error("service.init.getServiceIndex.onError", input);
+            logger.error("service.init.onClickService.onError", input);
             Toast.Error(input);
         }
     });
+}
+
+function init() {
+    const { serviceName, projectName } = locationData.getServiceParams();
+
+    let location = null;
+    const tmpLocationData = locationData.getLocationData();
+    if (tmpLocationData.Path) {
+        location = tmpLocationData;
+    }
+
+    Dashboard.Render({
+        id: "root",
+        logout: auth.logout,
+        onClickService: function (input: any) {
+            const { serviceName, projectName } = input;
+            getServiceIndex({ serviceName, projectName });
+        }
+    });
+
+    getServiceIndex({
+        serviceName,
+        projectName,
+        location
+    });
+}
+
+function gotoService(input: any) {
+    const { serviceName } = input;
+    const services = $(`.${Dashboard.serviceLinkClass}`);
+    for (let i = 0, len = services.length; i < len; i++) {
+        const service = $(services[i]);
+        if (service.text() == serviceName) {
+            service.click();
+            break;
+        }
+    }
 }
 
 function getViewFromPath(View: any, path: any): any {
@@ -201,6 +214,7 @@ const index = {
     init,
     getViewFromPath,
     getQueries,
+    gotoService,
     submitQueries
 };
 export default index;

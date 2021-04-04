@@ -6,6 +6,8 @@ import service from "../../apps/service";
 import data from "../../data";
 import locationData from "../../data/locationData";
 
+const serviceLinkClass = "dashboard-service-link";
+
 function renderServices(input: any) {
     const { id, keyPrefix, serviceName, projectName, onClickService } = input;
     const { ServiceMap, ProjectServiceMap } = data.auth.Authority;
@@ -62,7 +64,7 @@ function renderServices(input: any) {
         }
         servicesHtmls.push(`
         <li class="dashboard-sidebar-item">
-          <a class="${keyPrefix}-Service ${className}" href="#">${service.Name}</a>
+          <a class="${serviceLinkClass} ${className}" href="#">${service.Name}</a>
         </li>
         `);
     }
@@ -86,7 +88,7 @@ function renderServices(input: any) {
             }
         });
 
-    $(`.${keyPrefix}-Service`).on("click", function (e) {
+    $(`.${serviceLinkClass}`).on("click", function (e) {
         $("#dashboard-sidebar-wrapper").removeClass("toggled");
         const serviceName = $(this).text();
         onClickService({ projectName, serviceName });
@@ -494,6 +496,7 @@ const RightBottomMenu = {
 };
 
 const index = {
+    serviceLinkClass,
     Render,
     NavPath,
     RootContentProgress,
