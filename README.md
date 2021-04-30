@@ -38,8 +38,8 @@ $ yarn install
 ### エントリーポイント(src/index.tsx)を作成する
 
 ```
-import auth from "./apps/auth";
-import provider from "./provider";
+import auth from "./appui/src/apps/auth";
+import provider from "./appui/src/provider";
 import app from "./app";
 
 $(function () {
