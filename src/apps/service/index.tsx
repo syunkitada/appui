@@ -111,7 +111,21 @@ function getQueries(input: any) {
     } else {
         location.WebSocketQuery = null;
     }
+
+    if (!nextView.DataQueries) {
+        if (view) {
+            Index.Render(view);
+        } else {
+            Index.Render({
+                id: "root-content",
+                View: data.service.rootView
+            });
+        }
+        return;
+    }
+
     location.DataQueries = nextView.DataQueries;
+
     if (view && view.View.ViewParams) {
         location.ViewParams = view.View.ViewParams;
     } else {

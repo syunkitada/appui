@@ -5,6 +5,7 @@ import { IProvider } from "../IProvider";
 import service_index from "./service_index";
 import home_service from "./home_service";
 import note_service from "./note_service";
+import components_service from "./components_service";
 
 const localStorage = window.localStorage;
 
@@ -65,8 +66,9 @@ class Provider implements IProvider {
                 ServiceMap: {
                     // Priorityが低いほうが優先度が高く、左メニューバーの一番上にくる
                     Home: { Priority: 0 },
-                    Note: { Priority: 1 },
-                    Graph: { Priority: 2 }
+                    Components: { Priority: 1 },
+                    Note: { Priority: 2 },
+                    Graph: { Priority: 3 }
                 }
             }
         };
@@ -95,6 +97,9 @@ class Provider implements IProvider {
         switch (serviceName) {
             case "Home":
                 home_service.getServiceIndex(input);
+                break;
+            case "Components":
+                components_service.getServiceIndex(input);
                 break;
             case "Note":
                 note_service.getServiceIndex(input);

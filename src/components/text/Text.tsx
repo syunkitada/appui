@@ -60,8 +60,13 @@ export function Render(input: any) {
     </div>
     `);
 
-    // hide for rerendering
-    $(`#${textId}`).html(md.render(textData)).hide();
+    if (View.DataFormat == "Raw") {
+        // hide for rerendering
+        $(`#${textId}`).html(textData).hide();
+    } else {
+        // hide for rerendering
+        $(`#${textId}`).html(md.render(textData)).hide();
+    }
 
     const navs = [];
     const contents = [];
@@ -70,7 +75,10 @@ export function Render(input: any) {
     const children = $(`#${textId}`).children();
     for (let i = 0, len = children.length; i < len; i++) {
         const child = children[i];
-        if (child.nodeName === "H2") {
+        if (
+            child.nodeName === "H2" &&
+            !child.className.includes("ignore-nav")
+        ) {
             if (header) {
                 const id = encodeURI(header.text());
                 contents.push(

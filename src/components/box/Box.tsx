@@ -74,7 +74,7 @@ export function Render(input: any) {
                                 }
                                 cards.push(`
                                     <div class="col m6">
-                                      <h4>${card.Name}</h4>
+                                      <h2>${card.Name}</h2>
                                       <table class="table">
                                         <thead><tr><th>Field Name</th><th>Field Value</th></tr></thead>
                                         <tbody>${fields.join("")}</tbody>
@@ -86,7 +86,7 @@ export function Render(input: any) {
                             case "Table":
                                 cards.push(`
                                     <div class="col m6" style="padding: 0 20px;">
-                                      <h5>${card.Name}</h5>
+                                      <h3>${card.Name}</h3>
                                       <div id="${keyPrefix}${card.Name}"></div>
                                     </div>
                                 `);
@@ -123,7 +123,7 @@ export function Render(input: any) {
                     )}`;
                     panelsGroups.push(
                         `<div class="row">
-                            <h5>${panelsGroup.Name}</h5>
+                            <h3>${panelsGroup.Name}</h3>
                             <div id="${panelId}">
                             </div>
                         </div>`
@@ -179,7 +179,7 @@ export function Render(input: any) {
                             )}`;
                             cards.push(`
                                 <div class="col m6">
-                                <h5>${metrics.Name}</h5>
+                                <h3>${metrics.Name}</h3>
                                 <div id="${cardId}"></div></div>
                             `);
                             renderHandlers.push({
@@ -192,7 +192,7 @@ export function Render(input: any) {
                         }
                         panelsGroups.push(`
                           <div class="row">
-                            <h4>${metricsGroup.Name}</h4>
+                            <h2>${metricsGroup.Name}</h2>
                             ${cards.join("")}
                           </div>
                         `);
