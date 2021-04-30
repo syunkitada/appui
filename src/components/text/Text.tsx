@@ -73,10 +73,10 @@ export function Render(input: any) {
 
     if (View.DataFormat == "Raw") {
         // hide for rerendering
-        $(`#${textId}`).html(textData.Text).hide();
+        $(`#${textId}`).html(textData.Text);
     } else {
         // hide for rerendering
-        $(`#${textId}`).html(md.render(textData.Text)).hide();
+        $(`#${textId}`).html(md.render(textData.Text));
     }
 
     const navs = [];

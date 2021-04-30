@@ -42,7 +42,7 @@ export function Render(input: any) {
 
     let { textData } = input;
     if (!textData) {
-        textData = data.service.data[View.DataKey];
+        textData = data.service.data[View.DataKey].Text;
     }
     if (!textData) {
         $(`#${id}`).html("NoData");
@@ -81,8 +81,10 @@ export function Render(input: any) {
     function render() {
         Text.Render({
             id: textId,
-            textData: textarea.val(),
-            View: {}
+            textData: { Text: textarea.val() },
+            View: {
+                DataFormat: "Md"
+            }
         });
     }
 
