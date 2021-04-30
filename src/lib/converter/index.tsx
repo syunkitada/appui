@@ -6,6 +6,15 @@ function escapeKey(str: string): string {
     return result;
 }
 
+function escapeHtml(str: string): string {
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 function formatText(str: string): string {
     const splitedVar = str.split("#{");
     if (splitedVar.length === 1) {
@@ -44,8 +53,21 @@ function formatText(str: string): string {
     return texts.join("");
 }
 
+function formatDate(date: string): string {
+    let d = date;
+    const time: any = new Date(d);
+    if (!isNaN(time.getTime())) {
+        return `${time.getFullYear()}/${time.getMonth()}/${time.getDate()} ${time.getHours()}:${time.getMinutes()}`;
+    } else {
+        d = time.toString();
+    }
+    return d;
+}
+
 const index = {
     escapeKey,
-    formatText
+    escapeHtml,
+    formatText,
+    formatDate
 };
 export default index;

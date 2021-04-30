@@ -6,6 +6,8 @@ import service from "../../apps/service";
 import data from "../../data";
 import locationData from "../../data/locationData";
 
+const serviceLinkClass = "dashboard-service-link";
+
 function renderServices(input: any) {
     const { id, keyPrefix, serviceName, projectName, onClickService } = input;
     const { ServiceMap, ProjectServiceMap } = data.auth.Authority;
@@ -62,7 +64,7 @@ function renderServices(input: any) {
         }
         servicesHtmls.push(`
         <li class="dashboard-sidebar-item">
-          <a class="${keyPrefix}-Service ${className}" href="#">${service.Name}</a>
+          <a class="${serviceLinkClass} ${className}" href="#">${service.Name}</a>
         </li>
         `);
     }
@@ -86,7 +88,7 @@ function renderServices(input: any) {
             }
         });
 
-    $(`.${keyPrefix}-Service`).on("click", function (e) {
+    $(`.${serviceLinkClass}`).on("click", function (e) {
         $("#dashboard-sidebar-wrapper").removeClass("toggled");
         const serviceName = $(this).text();
         onClickService({ projectName, serviceName });
@@ -104,7 +106,9 @@ function Render(input: any) {
     const keyPrefix = `${input.id}-Dashboard-`;
     const servicesId = `${keyPrefix}Services`;
 
-    const logo = provider.getLogo();
+    const view = provider.getDashboardView({});
+
+    const logo = view.Logo;
     let logoHtml = "";
     switch (logo.Kind) {
         case "Text":
@@ -115,29 +119,75 @@ function Render(input: any) {
             break;
     }
 
+    const headerNavs: any = [];
+    if (view.Logout) {
+        headerNavs.push(
+            `<li><a href="#!" id="dashboard-logout">Log out</a></li>`
+        );
+    }
+
+    const exNavs: any = [];
+    const rightNavs: any = [];
+    if (view.SearchForm) {
+        rightNavs.push(`
+        <li class="dashboard-search-form">
+          <i class="dashboard-search-input-icon material-icons">search</i>
+          <input class="dashboard-search-input" type="text" />
+          <div class="dashboard-search-card">
+          </div>
+        </li>`);
+        exNavs.push(`
+        <li class="dashboard-search-form toggled">
+          <i class="dashboard-search-input-icon material-icons">search</i>
+          <input class="dashboard-search-input" type="text" />
+          <div class="dashboard-search-card">
+          </div>
+        </li>`);
+    }
+
+    if (headerNavs.length > 0) {
+        rightNavs.push(
+            `<li><a class="dropdown-trigger" href="#!" data-target="dashboard-dropdown">${Name} <i class="material-icons right">arrow_drop_down</i></a></li>`
+        );
+    } else {
+        rightNavs.push(`<li><a>${Name}</a></li>`);
+    }
+
     $(`#${id}`).html(`
     <ul id="dashboard-dropdown" class="dropdown-content">
-      <li><a href="#!" id="dashboard-logout">Log out</a></li>
+      ${headerNavs.join("")}
     </ul>
 
     <nav id="dashboard-nav-header">
-      <div class="nav-wrapper">
-        <ul class="left">
-          <li><a href="#!" id="dashboard-menu-toggle"><i class="material-icons">menu</i></a></li>
-          <li><a href="#!" id="dashboard-nav-logo">${logoHtml}</a></li>
-        </ul>
+      <div class="nav-wrapper row">
+        <div class="col s12" style="padding: 0px;">
+            <ul>
+              <li><a href="#!" id="dashboard-menu-toggle"><i class="material-icons">menu</i></a></li>
+              <li><a href="#!" id="dashboard-nav-logo">${logoHtml}</a></li>
+              <li><a href="#!" id="dashboard-nav-header-ex-toggle"><i class="material-icons">keyboard_arrow_down</i></a></li>
+            </ul>
 
-        <div id="dashboard-nav-breadcrumb" class="nav-wrapper">
-          <div id="dashboard-nav-path" class="col s12">
-          </div>
+            <div id="dashboard-nav-breadcrumb" class="nav-wrapper">
+              <div id="dashboard-nav-path"></div>
+            </div>
+
+            <ul class="right" style="display: inline-flex;">
+                ${rightNavs.join("")}
+            </ul>
         </div>
-
-        <ul class="right">
-          <li><a class="dropdown-trigger" href="#!" data-target="dashboard-dropdown">${Name} <i class="material-icons right">arrow_drop_down</i></a></li>
-        </ul>
-
         <div id="dashboard-root-content-progress" class="progress" style="display: none;">
           <div class="determinate" style="width: 0%"></div>
+        </div>
+      </div>
+      <div class="nav-wrapper row" id="dashboard-nav-header-ex">
+        <div class="col s12 dashboard-nav-header-ex-col">
+          <div id="dashboard-nav-breadcrumb-ex" class="nav-wrapper">
+            <div id="dashboard-nav-path-ex">
+            </div>
+          </div>
+        </div>
+        <div class="col s12 dashboard-nav-header-ex-col">
+            <ul id="dashboard-exnavs">${exNavs.join("")}</ul>
         </div>
       </div>
     </nav>
@@ -159,10 +209,129 @@ function Render(input: any) {
           <a href="#!" id="dashboard-root-modal-submit-button" class="waves-effect waves-light btn right">Submit</a>
         </div>
       </div>
+
+      <div id="dashboard-tap-menu-wrapper">
+        <div id="dashboard-tap-menu"></div>
+        <a id="dashboard-tap-menu-toggle-button" class="btn-floating btn-large waves-effect waves-light right">
+            <i class="material-icons">more_vert</i></a>
+      </div>
     </div>
     `);
 
     $("#dashboard-root-modal").modal();
+
+    function hideDashboardSearchCard() {
+        $(".dashboard-search-card").hide();
+        $(window).off("click");
+    }
+
+    function showDashboardSearchCard() {
+        $(".dashboard-search-card").show();
+        $(window)
+            .off("click")
+            .on("click", function (e: any) {
+                const searchForm = $(e.target).closest(
+                    ".dashboard-search-form"
+                );
+                if (searchForm.length == 0) {
+                    hideDashboardSearchCard();
+                }
+            });
+    }
+
+    function forwardLink(that: any) {
+        const key = that.attr("data-key");
+        if (key) {
+            const params: any = { Key: key };
+            const newLocation = {
+                Path: view.SearchForm.LinkPath,
+                Params: params,
+                SearchQueries: {}
+            };
+            service.getQueries({ location: newLocation });
+            hideDashboardSearchCard();
+        }
+    }
+
+    hideDashboardSearchCard();
+    function onChange(val: any) {
+        $(".dashboard-search-card").show();
+        view.SearchForm.onChange({
+            val: val,
+            onSuccess: function (_input: any) {
+                const { Results } = _input;
+                const htmls = [];
+                for (let i = 0, len = Results.length; i < len; i++) {
+                    const result = Results[i];
+                    htmls.push(`
+                    <a class="dashboard-search-result" href="#" data-key="${result.Key}">
+                      <div class="row">
+                        <div class="col s4 search-key" style="overflow-wrap: break-word;">${result.Key}</div>
+                        <div class="col s8 search-value" style="overflow-wrap: break-word;">${result.Value}</div>
+                      </div>
+                    </a>
+                    `);
+                }
+
+                $(".dashboard-search-card").html(htmls.join(""));
+                $(".dashboard-search-result")
+                    .off("click")
+                    .on("click", function (e: any) {
+                        e.preventDefault();
+                        forwardLink($(this));
+                    });
+            }
+        });
+    }
+
+    let searchInputVal = "";
+    let searchResultPosition = 0;
+    function searchInputOnChange(e: any, that: any) {
+        showDashboardSearchCard();
+        let isEnter = false;
+        switch (e.key) {
+            case "ArrowDown":
+                searchResultPosition += 1;
+                break;
+            case "ArrowUp":
+                searchResultPosition -= 1;
+                break;
+            case "Enter":
+                isEnter = true;
+                break;
+            default:
+                break;
+        }
+        if (isEnter) {
+            const searchResults = $(".dashboard-search-result");
+            forwardLink($(searchResults[searchResultPosition]));
+            return;
+        }
+
+        const val = that.val();
+        if (searchInputVal != val) {
+            const searchResults = $(".dashboard-search-result");
+            onChange(val);
+        }
+
+        const searchResults = $(".dashboard-search-result");
+        const lenResults = searchResults.length;
+        if (searchResultPosition < 0) {
+            searchResultPosition = 0;
+        } else if (searchResultPosition >= lenResults) {
+            searchResultPosition = lenResults - 1;
+        }
+        searchResults.removeClass("active");
+        $(searchResults[searchResultPosition]).addClass("active");
+    }
+
+    $(".dashboard-search-input")
+        .on("focusin", function (e: any) {
+            searchInputOnChange(e, $(this));
+        })
+        .on("keyup", function (e: any) {
+            searchInputOnChange(e, $(this));
+        });
 
     renderServices(
         Object.assign({}, input, {
@@ -190,8 +359,18 @@ function Render(input: any) {
         $("#dashboard-content-wrapper").toggleClass("toggled");
     });
 
+    $("#dashboard-nav-header-ex-toggle").on("click", function (e) {
+        e.preventDefault();
+        $("#dashboard-nav-header-ex").toggleClass("toggled");
+    });
+
     $("#dashboard-logout").on("click", function () {
         input.logout();
+    });
+
+    $("#dashboard-tap-menu-toggle-button").on("click", function (e) {
+        e.preventDefault;
+        $("#dashboard-tap-menu").toggleClass("toggled");
     });
 
     return;
@@ -200,6 +379,29 @@ function Render(input: any) {
 const NavPath = {
     Render: function (input: any) {
         const { location } = input;
+        const view = provider.getDashboardView({});
+        if (view.GetNavs && view.OnClickNav) {
+            const navs = view.GetNavs(input);
+            const navHtmls: any[] = [];
+            for (let i = 0, len = navs.length; i < len; i++) {
+                const nav = navs[i];
+                navHtmls.push(`
+                <a href="#!" class="breadcrumb dashboard-nav-path-link" data-path="${nav.path}">${nav.name}</a>
+                `);
+            }
+            $("#dashboard-nav-path").html(navHtmls.join(""));
+            $("#dashboard-nav-path-ex").html(navHtmls.join(""));
+            $(".dashboard-nav-path-link")
+                .off("click")
+                .on("click", function (e: any) {
+                    e.preventDefault();
+                    const dataPath = $(this).attr("data-path");
+                    if (dataPath) {
+                        view.OnClickNav({ dataPath, location });
+                    }
+                });
+            return;
+        }
         const navs: any[] = [];
         let parents: any[] = [];
         for (let i = 0, len = location.Path.length; i < len; i++) {
@@ -285,10 +487,20 @@ const RootModal = {
     }
 };
 
+const RightBottomMenu = {
+    Render: function (input: any) {
+        const { html } = input;
+        $("#dashboard-tap-menu").html(html);
+        $("#dashboard-tap-menu-toggle-button").show();
+    }
+};
+
 const index = {
+    serviceLinkClass,
     Render,
     NavPath,
     RootContentProgress,
-    RootModal
+    RootModal,
+    RightBottomMenu
 };
 export default index;

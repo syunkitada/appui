@@ -9,11 +9,16 @@ import "prismjs/plugins/toolbar/prism-toolbar.min.js";
 import "prismjs/plugins/toolbar/prism-toolbar.css";
 import "prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js";
 
+import Dashboard from "../core/Dashboard";
+import locationData from "../../data/locationData";
+import service from "../../apps/service";
 import logger from "../../lib/logger";
 import data from "../../data";
+import converter from "../../lib/converter";
 
 export function Render(input: any) {
     const { id, View } = input;
+    const location = locationData.getLocationData();
     const prefixKey = `${id}-`;
     const textId = `${prefixKey}Text`;
     const navId = `${prefixKey}Nav`;
@@ -32,11 +37,9 @@ export function Render(input: any) {
                     tmpLang = "clike";
                     break;
             }
-            return (
-                `<pre class="language-${tmpLang}"><code class="language-${tmpLang}">` +
-                str +
-                "</code></pre>"
-            );
+            return `<pre class="language-${tmpLang}"><code class="language-${tmpLang}">${converter.escapeHtml(
+                str
+            )}</code></pre>`;
         }
     });
 
@@ -44,28 +47,36 @@ export function Render(input: any) {
     if (!textData) {
         textData = data.service.data[View.DataKey];
     }
-    if (!textData) {
+    if (!textData || !textData.Text) {
         $(`#${id}`).html("NoData");
         return;
     }
 
-    $(`#${id}`).html(`
-    <div class="row text" style="padding: 0 5px">
-      <div class="col s9 text-content" id="${textId}">
+    let tagHeader = "";
+    if (textData.UpdatedAt) {
+        tagHeader += `
+      <div class="col m9 s12 text-tag-header">
+        Updated At: ${converter.formatDate(textData.UpdatedAt)}
       </div>
-      <div class="col s3 text-nav">
-        <ul id="${navId}" class="section table-of-contents">
-        </ul>
+      `;
+    }
+
+    $(`#${id}`).hide().html(`
+    <div class="row text" style="padding: 0 5px">
+      ${tagHeader}
+      <div class="col m9 s12 text-content" id="${textId}">
+      </div>
+      <div id="${navId}" class="col m3 s11 text-nav">
       </div>
     </div>
     `);
 
     if (View.DataFormat == "Raw") {
         // hide for rerendering
-        $(`#${textId}`).html(textData).hide();
+        $(`#${textId}`).html(textData.Text).hide();
     } else {
         // hide for rerendering
-        $(`#${textId}`).html(md.render(textData)).hide();
+        $(`#${textId}`).html(md.render(textData.Text)).hide();
     }
 
     const navs = [];
@@ -113,10 +124,21 @@ export function Render(input: any) {
 
     $(`#${textId}`).html(contents.join(""));
     Prism.highlightAll();
-    $(`#${textId}`).show();
 
-    $(`#${navId}`).html(navs.join(""));
+    const navsHtml = `<ul class="section table-of-contents text-right-menu">${navs.join(
+        ""
+    )}</ul>`;
+    $(`#${navId}`).html(navsHtml);
+    Dashboard.RightBottomMenu.Render({ html: navsHtml });
     $(`.${scrollSpyClass}`).scrollSpy();
+
+    if (View.OnRenderLast) {
+        View.OnRenderLast({
+            textId
+        });
+    }
+
+    $(`#${id}`).show();
 }
 
 const index = {
