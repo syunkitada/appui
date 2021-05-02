@@ -25,9 +25,11 @@ export function Render(input: any) {
     const location = locationData.getLocationData();
     let pathIndex = 0;
     let indexPath = "";
+    console.log("DEBUG Tab Render");
     if (location.SubPath) {
         indexPath = location.SubPath[View.Name];
     } else if (View.Name === "Root") {
+        console.log("DEBUG Tab Render Root");
         indexPath = location.Path[0];
     } else {
         for (let i = 0, len = location.Path.length; i < len; i++) {
@@ -92,9 +94,7 @@ export function Render(input: any) {
 
         tabs.push(`<div class="appui-tab ${tabClass} ${activeClass}" data-idx="${i}">
           <div>
-            <a class="tab-name ${tabNameClass}">
-              ${tab.Name}
-            </a>
+            <a class="tab-name ${tabNameClass}">${tab.Name}</a>
             ${tabRenameButton}
             ${tabCloseButton}
           </div>
@@ -203,7 +203,11 @@ export function Render(input: any) {
                             }
                         }
                     } else {
-                        newLocation.Path[pathIndex + 1] = tabContent.Name;
+                        if (View.Name === "Root") {
+                            newLocation.Path[pathIndex] = tabContent.Name;
+                        } else {
+                            newLocation.Path[pathIndex + 1] = tabContent.Name;
+                        }
                     }
                     $(`#${tabContentId}`).html("");
                     if (View.TabParamKey) {

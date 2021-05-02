@@ -5,12 +5,11 @@ import Panes from "./panes/Panes";
 import Tabs from "./tabs/Tabs";
 import Panels from "./panels/Panels";
 import Table from "./table/Table";
-import Title from "./core/Title";
+import Title from "./title/Title";
 import Text from "./text/Text";
 import Box from "./box/Box";
 import Console from "./console/Console";
 import Notfound from "./core/Notfound";
-import Raw from "./raw/Raw";
 import logger from "../lib/logger";
 
 function Render(input: any) {
@@ -40,8 +39,6 @@ function Render(input: any) {
             return Box.Render(input);
         case "Box":
             return Box.Render(input);
-        case "Raw":
-            return Raw.Render(input);
         case "SearchForm":
             return SearchForm.Render(input);
         default:

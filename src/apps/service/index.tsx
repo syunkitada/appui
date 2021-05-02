@@ -138,6 +138,11 @@ function getQueries(input: any) {
                 View: data.service.rootView
             });
         }
+        console.log("DEBUG location", location);
+        locationData.setLocationData(location);
+        Dashboard.NavPath.Render({
+            location
+        });
         return;
     }
 

@@ -9,6 +9,7 @@ import Icon from "../icon/Icon";
 import Form from "../form/Form";
 import color from "../../lib/color";
 import logger from "../../lib/logger";
+import ErrorText from "../error_text/ErrorText";
 
 export function Render(input: any) {
     const { id, View } = input;
@@ -37,8 +38,17 @@ export function Render(input: any) {
     const checkboxClass = `${keyPrefix}checkbox`;
     const filterMap: any = {};
 
+    // Data, Viewのバリデーションを行う
+    let isValidData = false;
     if (!tableData) {
-        $(`#${id}`).html(`<div>NoData</div>`);
+        ErrorText.Render({ id: id, error: "NoData" });
+        return;
+    }
+    if (!View.Columns) {
+        ErrorText.Render({
+            id: id,
+            error: "Invalid View: Columns is not found."
+        });
         return;
     }
 
