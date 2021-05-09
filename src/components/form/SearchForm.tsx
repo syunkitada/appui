@@ -1,6 +1,8 @@
 import locationData from "../../data/locationData";
 import service from "../../apps/service";
 
+import ErrorText from "../error_text/ErrorText";
+
 export function Render(input: any) {
     const { id, View, onSubmit } = input;
 
@@ -13,6 +15,14 @@ export function Render(input: any) {
     const timepickerClass = `${keyPrefix}timepicker`;
 
     const inputs: any[] = [];
+    if (!View.Fields) {
+        ErrorText.Render({
+            id: id,
+            error: "SearchForm: InvaldView: Fields is not found"
+        });
+        return;
+    }
+
     for (let i = 0, len = View.Fields.length; i < len; i++) {
         const fieldId = `${keyPrefix}field${i}`;
         const input = View.Fields[i];
@@ -146,7 +156,6 @@ export function Render(input: any) {
         if (onSubmit) {
             onSubmit({ searchQueries });
         } else if (View.LinkPath) {
-            console.log("DEBUG LinkPath");
             const newLocation = {
                 Path: View.LinkPath,
                 Params: searchQueries,

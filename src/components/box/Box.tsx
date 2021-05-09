@@ -1,7 +1,9 @@
 import data from "../../data";
+import logger from "../../lib/logger";
 import converter from "../../lib/converter";
 import locationData from "../../data/locationData";
 import service from "../../apps/service";
+
 import Table from "../table/Table";
 import SearchForm from "../form/SearchForm";
 import LineGraphCard from "../card/LineGraphCard";
@@ -74,7 +76,7 @@ export function Render(input: any) {
                                 }
                                 cards.push(`
                                     <div class="col m6">
-                                      <h2>${card.Name}</h2>
+                                      <h1>${card.Name}</h1>
                                       <table class="table">
                                         <thead><tr><th>Field Name</th><th>Field Value</th></tr></thead>
                                         <tbody>${fields.join("")}</tbody>
@@ -86,7 +88,7 @@ export function Render(input: any) {
                             case "Table":
                                 cards.push(`
                                     <div class="col m6" style="padding: 0 20px;">
-                                      <h3>${card.Name}</h3>
+                                      <h2>${card.Name}</h2>
                                       <div id="${keyPrefix}${card.Name}"></div>
                                     </div>
                                 `);
@@ -123,7 +125,7 @@ export function Render(input: any) {
                     )}`;
                     panelsGroups.push(
                         `<div class="row">
-                            <h3>${panelsGroup.Name}</h3>
+                            <h2>${panelsGroup.Name}</h2>
                             <div id="${panelId}">
                             </div>
                         </div>`
@@ -179,7 +181,7 @@ export function Render(input: any) {
                             )}`;
                             cards.push(`
                                 <div class="col m6">
-                                <h3>${metrics.Name}</h3>
+                                <h2>${metrics.Name}</h2>
                                 <div id="${cardId}"></div></div>
                             `);
                             renderHandlers.push({
@@ -192,7 +194,7 @@ export function Render(input: any) {
                         }
                         panelsGroups.push(`
                           <div class="row">
-                            <h2>${metricsGroup.Name}</h2>
+                            <h1>${metricsGroup.Name}</h1>
                             ${cards.join("")}
                           </div>
                         `);
@@ -211,7 +213,11 @@ export function Render(input: any) {
 
         for (let i = 0, len = renderHandlers.length; i < len; i++) {
             const handler = renderHandlers[i];
-            handler.render(handler.input);
+            try {
+                handler.render(handler.input);
+            } catch (err) {
+                logger.error("Box: failed handler.render", handler, err);
+            }
         }
     }
     renderPanels();

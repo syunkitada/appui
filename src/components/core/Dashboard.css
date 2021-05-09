@@ -14,22 +14,22 @@ code {
 
 h1 {
     font-size: 2.28rem;
-    margin: 0.2rem 0 1rem 0;
+    margin: 0.4rem 0 1rem 0;
 }
 
 h2 {
     font-size: 1.65rem;
-    margin: 0.2rem 0 0.8rem 0;
+    margin: 0.4rem 0 0.8rem 0;
 }
 
 h3 {
     font-size: 1.45rem;
-    margin: 0.2rem 0 0.6rem 0;
+    margin: 0.3rem 0 0.6rem 0;
 }
 
 h4 {
     font-size: 1.25rem;
-    margin: 0.2rem 0 0.6rem 0;
+    margin: 0.3rem 0 0.6rem 0;
 }
 
 #dashboard-nav-header {

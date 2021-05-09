@@ -1,3 +1,4 @@
+import Form from "./form/Form";
 import SearchForm from "./form/SearchForm";
 import Editor from "./editor/Editor";
 import Pane from "./pane/Pane";
@@ -39,6 +40,8 @@ function Render(input: any) {
             return Box.Render(input);
         case "Box":
             return Box.Render(input);
+        case "Form":
+            return Form.Render(input);
         case "SearchForm":
             return SearchForm.Render(input);
         default:

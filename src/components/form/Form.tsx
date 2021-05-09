@@ -4,6 +4,7 @@ import data from "../../data";
 import service from "../../apps/service";
 import locationData from "../../data/locationData";
 import Dashboard from "../core/Dashboard";
+import Icon from "../icon/Icon";
 
 export function Render(input: any) {
     const { View, useRootModal, selectedData, onSubmit } = input;
@@ -257,10 +258,27 @@ export function Render(input: any) {
         Dashboard.RootModal.Init({ View, onSubmit: onSubmitInternal });
         Dashboard.RootModal.Open();
     } else {
+        let submitButtonName = "Submit";
+        if (View.SubmitButtonName) {
+            submitButtonName = View.SubmitButtonName;
+        }
+        let icon = "";
+        if (View.Icon) {
+            icon = Icon.Html({ kind: View.Icon });
+        }
+        let buttonClass = "";
+        let style = "";
+        if (View.SubmitButtonStyle) {
+            if (View.SubmitButtonStyle == "wide") {
+                buttonClass = "btn-large";
+                style = "width: 100%;";
+            }
+        }
         $(`#${submitButtonWrapperId}`).html(`
         <div class="row">
           <div class="input-field col s12">
-            <input type="submit" id="${submitButtonId}" class="btn btn-large btn-primary btn-block" style="width: 100%;" value="Log In"/>
+            <button type="submit" style="display: none;"></button>
+            <a id="${submitButtonId}" class="waves-effect waves-light btn btn-primary btn-block ${buttonClass}" style="${style}">${icon}${submitButtonName}</a>
           </div>
         </div>
         `);
